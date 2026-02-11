@@ -1,12 +1,13 @@
 from requests import get
 from json import dump, load
-from bs4 import BeautifulSoup
 from time import sleep
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
+from pandas import read_json
+import seaborn as sns
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
 
-def get_articles():
-    API_KEY = "GAtwkeGZptaol9lOzMTAgLA3JGDO9SoZXG91DYKAcolexad6"
+def get_articles_from_api():
+    API_KEY = ""
     search_term = "AI"
     page_number = 1
     offset = 0
@@ -28,9 +29,6 @@ def get_articles():
     except Exception as e:
         print(e)
 
-
-
-
 def read_articles():
     with open("articles.json", "r") as file:
         return load(file)
@@ -44,37 +42,38 @@ def scrape_article(url, driver=None):
     return article
 
 
+def visualize():
+    df = read_json("articles.json")
+    months_posts = []
+    for i, row in df.iterrows():
+        months_posts.append(row["pub_date"][:7])
+
+    keywords = ""
+    for i, row in df.query("section_name == 'Technology'").iterrows():
+        for keyword in row["keywords"]:
+            keywords += keyword["value"] + " "
+
+    sns.histplot(months_posts)
+    plt.title("Number of posts per month")
+    plt.show()
+
+    plt.xticks(rotation=90)
+    plt.title("Number of posts per section")
+    sns.histplot(df["section_name"])
+    plt.show()
+
+    wordcloud = WordCloud(width=1500, height=800, background_color='white').generate(keywords)
+
+    plt.figure(figsize=(10, 5))
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.axis('off')
+    plt.title("Keywords used in NYT Tech articles mentioning AI")
+    plt.show()
+
+
 def main():
-    # get_articles()
-    json_response = read_articles()
-    for item in json_response:
-        if item["section_name"] == "Technology":
-            headline = item["headline"]["main"]
-            snippet = item["snippet"]
-            pub_date = item["pub_date"]
-            print("-----------------")
-            print("Headline: ", headline)
-            print("Pub Date: ", pub_date)
-            print("Snippet: ", snippet)
-            # for k, v in item.items():
-            #     print(k, v)
-            print("-----------------")
-            print()
-        # break
-        # print(item)
-
-    # url = json_response[0]["web_url"]
-    #
-    # service = Service(executable_path="")
-    # driver = webdriver.Chrome(service=service)
-    # print(scrape_article(url, driver))
-
-    # article = get(url)
-    # soup = BeautifulSoup(article.text, "html.parser")
-    # print(soup.prettify())
-
-
-
+    # get_articles_from_api()
+    visualize()
 
 if __name__ == "__main__":
     main()
