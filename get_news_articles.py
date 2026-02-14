@@ -3,7 +3,15 @@ from datasets import load_dataset
 from os import remove, rename
 from pandas import DataFrame
 from sqlite3 import connect
-from secrets import HF_TOKEN
+
+try:
+    from secrets import HF_TOKEN
+except ImportError:
+    user_choice = input("Would you like to input a Hugging Face Access Token? (y/n) ")
+    if user_choice.lower() == "y":
+        HF_TOKEN = input("Enter your Hugging Face Access Token: ")
+    else:
+        HF_TOKEN = None
 
 # Constants
 AI_KEYWORDS = [
@@ -54,20 +62,23 @@ def verify_filters(text, date, source):
 
 
 # Get articles from dataset
-def download_articles():
+def download_articles(max_articles=1500):
+    articles = []
+    used_articles = []
+    valid_articles = 0
+    years = {}
+
+    print(f"Downloading articles {max_articles}")
+
     # Load streaming dataset
-    login(HF_TOKEN)
+    if HF_TOKEN:
+        login(HF_TOKEN)
+
     dataset = load_dataset(
         "ruggsea/infini-news-corpus",
         split="train",
         streaming=True
     )
-
-    articles = []
-    used_articles = []
-    max_articles = 1500
-    valid_articles = 0
-    years = {}
 
     for article in dataset:
         if valid_articles >= max_articles:
@@ -112,7 +123,7 @@ def download_articles():
     df.to_csv("ai_articles_2020_2025.csv", index=False)
     remove("temp.csv")
 
-    # Convert to SQL database
+    # Convert to SQL databasep
     con = connect("articles.db")
     df.to_sql("articles", con=con, if_exists="replace")
 
