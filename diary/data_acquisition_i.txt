@@ -1,0 +1,31 @@
+In this project, we aim to explore the differing perspectives on AI between developers and mainstream media. Specficially, we plan to center our analysis on the following issues
+- Context/prompt window issues
+- Environmental impact
+- Hallucinations
+- Layoffs / automation
+- Licensing / IP infringement
+
+To do this, we plan to create a few distinct datasets to guide our analysis
+1. Developer Perspective Dataset:
+- We plan to scrape data from a popular tech forum, dev.to, which contains ~300,000 articles since 2017 written by
+    developers on a variety of topics, ranging from technical to more conceptual/ethical discussions.
+
+- dev.to has a functional API through Forem, which is how we plan to retrieve our data. We will be filtering articles
+    from late 2019 to present day.
+
+- Since it's a developer forum, most of the articles are bound to be more focused on technical implementations rather than
+    conceptual discussions. Combined with a lack of proper filtering through the forem API (no method to filter by multiple tags
+    at once), we might need to use keyword searching in addition to tag-based filtering to ensure that we don't ingest
+    unnecessary articles that might seem relevant, but are rather just technical implementations rather than real developer perspectives
+
+2. Mainstream Media Dataset
+- We plan on collecting news articles from traditional mainstream news sources by utilizing the Infini News Corpus dataset.
+    This is a dataset that contains news articles from a bunch of different publishers between 2021 to 2025.
+
+- The Infini News Corpus dataset is distributed through Hugging Face, so by streaming the data from Hugging Face,
+    we are able to continuously download articles and in real time filter out any article that doesn't seem A.I. related.
+    We determine if an article is A.I. related by checking for occurrences of a few keywords.
+
+- The biggest limitation with this dataset is that it contains a lot of data, most of which is not relevant to our project.
+    So, while we do have basic filters, it is possible that we have included articles that are not focused on A.I.,
+    but may mention it in relation to a different topic.
