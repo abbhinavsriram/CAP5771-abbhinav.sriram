@@ -170,7 +170,7 @@ def coalesce_articles():
 
     # Convert to SQL database
     df = read_csv("news_data/ai_articles.csv")
-    con = connect("ai_articles.sqlite")
+    con = connect("db.sqlite")
     df.to_sql("NewsArticles", con=con, if_exists="replace")
 
 
