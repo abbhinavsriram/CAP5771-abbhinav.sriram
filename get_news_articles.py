@@ -91,7 +91,7 @@ def get_articles_from_year(year, num_needed):
         streaming=True
     )
 
-    save_file = f"ai_articles_{year}.csv"
+    save_file = f"news_data/ai_articles_{year}.csv"
     start_time = datetime.now()
     for article in dataset:
         if len(articles) >= num_needed:
@@ -143,11 +143,10 @@ def get_articles_from_year(year, num_needed):
 
 # Get articles from dataset
 def download_articles(max_articles=1500):
-    years = ["2025", "2024", "2023", "2022", "2021"]
-
     print(f"Downloading articles {max_articles}")
 
     threads = []
+    years = ["2025", "2024", "2023", "2022", "2021"]
     num_needed = max_articles // len(years)
     for year in years:
         thread = Thread(target=get_articles_from_year, args=(year, num_needed + len(years)))
@@ -157,19 +156,25 @@ def download_articles(max_articles=1500):
     for thread in threads:
         thread.join()
 
-    with open("ai_articles.csv", "w", encoding="utf-8") as csvfile:
+
+def coalesce_articles():
+    years = ["2025", "2024", "2023", "2022", "2021"]
+
+    with open("news_data/ai_articles.csv", "w", encoding="utf-8") as csvfile:
         csvfile.write("url,date,title,text,source\n")
 
         for year in years:
-            with open(f"ai_articles_{year}.csv", "r", encoding="utf-8") as year_file:
+            with open(f"news_data/ai_articles_{year}.csv", "r", encoding="utf-8") as year_file:
                 lines = year_file.readlines()[1:]
             csvfile.write("".join(lines))
 
     # Convert to SQL database
-    df = read_csv("ai_articles.csv")
-    con = connect("ai_articles.db")
+    df = read_csv("news_data/ai_articles.csv")
+    con = connect("ai_articles.sqlite")
     df.to_sql("NewsArticles", con=con, if_exists="replace")
 
 
 if __name__ == "__main__":
     download_articles()
+    coalesce_articles()
+    print("Done")
