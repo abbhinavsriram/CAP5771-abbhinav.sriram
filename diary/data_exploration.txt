@@ -1,7 +1,12 @@
-
+Developer posts
+During data exploration, we found a couple of interesting takeaways on developer posts
+* Notes on the data quality: It seems like there are no null values! This was because we accounted for null values and duplicated data during the acquisition process
+* Note on posting timeline: There was a decent amount of discussion about the potential of AI between 2020-2021, and then gradually a rising discussion of AI since the release of ChatGPT at the end of 2022, which has peaked recently as AI advancements and investment ramp up. Seasonally, there seem to be more posts in January and December, could this be because it's holiday time and developers have more time to post articles in their free time?
+* Note on article length: Each of these articles are extremely long on average! A significant portion of this could be due to code or some other factor inflating word counts! Definitely an **anomaly** to keep track of
+* A decent number of articles that contain the word 'environment' don't necessarily discuss AI's impact on the environment, but might instead be discussing the developer environment. This might mean that we need to filter the data further using vector embeddings and semantic searching so that we can gauge deeper context, something that initial keyword matching couldn't solve. Or we might need to find less ambiguous terms to search.
 
 News Articles
-In terms of data exploration for te news articles, there isn't much that can be examined statistically,
+In terms of data exploration for the news articles, there isn't much that can be examined statistically,
     since most fields are text-based. The only meaningful analysis that could be done was to examine the date distribution
     of the collected articles, as we were trying to get articles over a multiyear period. The frequency of articles per month
     was graphed within the get_news_articles.py file, as it's own function, and it showed a fairly even distribution of data
