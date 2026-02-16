@@ -1,50 +1,22 @@
-Analyzing differences in AI automation concerns between developers and mainstream media sources
+# CAP 5771 Final Project - Abbhinav Sriram and Aelly Alwardi
 
-Exploration
-HackerNews and Reddit for developer sentiment, GDELT for television news transcriptions, NYT API for articles, The Guardian API, webscraping or other news networks
-How do developer and mainstream media reactions differ in how AI could affect future job shifts?
-Developers have a unique take on AI because they understand the limitations of current AI models, while media sources tend to be more sensationalist and have more viewership, usually influencing regulation. Understanding the difference in reactions could help inform about a potential disconnect
-Papers do exist that analyze news coverage of AI across different sectors. However, there are no studies that specifically look into the difference between developer sentiments and media coverage
-https://www.sciencedirect.com/science/article/abs/pii/S0736585324001278
-An  example of one of the studies
-Variables required
-Global events for context
-No media/developer discussion happens in a vacuum. Therefore, it is important that we use global events (e.g. announcement of mass layoffs) and understand how that might guide AI discussions
-Sentiment
-What kind of tone and sentiment dominate developer discussions and media coverage? Is one more overly positive than the other?
-Who/What is covered
-Coverage in media will be centered on companies, while developers tend to be more focused on libraries and languages.
-Meaningful and successful answer
-Identifying a specific topic which developers discuss more often than media coverage (e.g. AI hallucinations that prevent it from fully automating processes)
-Who uses the results
-This analysis can be used by the average consumer to understand a potential disconnect between how developers view AI vs. how media coverage perceives its impact
-Is this problem realistic?
-This problem is realistic given the resource constraints. Several data sources (Reddit, HackerNews, NYT, The Guardian, GDELT) have their own official APIs/datasets open for use
-The only potential roadblock might be success with webscraping other news sources that do not have an official API
+## Investigating contrasting perspectives between developers and mainstream media on AI implementation concerns
 
-How will you track your progress during the semester?
-	The project’s code will be stored in a git repo so we can both evaluate the current state of the project. Additionally, we will be using github issues and projects to keep an itemized to do list of deliverables needed for the project
 
-The Heilmeier Catechism
-1. What are you trying to do? Articulate your objectives using absolutely no jargon.
-We are trying to see if the news media coverage of AI matches the programmers feelings on AI
+### Installation requirements
 
-2. How is it done today, and what are the limits of current practice?
-There have been a few studies looking at developer sentiment towards AI but we didn’t find any study comparing that to news media
+Required Python version: 3.11
 
-3. What is new in your approach, and why do you think it will be successful?
-	We will be using the GDELT datasets to look at news coverage of AI and seeing if its sentiments match developer’s
+To install the required modules, run the command
 
-4. Who cares? If you are successful, what difference will it make?
-	AI is a hot topic right now driving a lot of the stock market, so getting a better understanding of public perception vs developer perception could give us an eye into the future of AI
+```
+pip install -r requirements.txt
+```
 
-5. What are the risks?
-	There is no risk of misinterpreting the final results from our study.
-6. How much will it cost?
-	This project will not cost anything
-7. How long will it take?
-	This project will take approximately 3 months to complete
+All of our data is stored on the SQLite file "db.sqlite"
 
-8. What are the mid-term and final "exams" to check for success?
-	The mid term check will be if we are able to capture enough data from developers to run a sentiment analysis, while a final check would be doing sentiment analysis on both the developers and news coverage
+Developer Posts code files:
+* get_dev_posts.ipynb is the code used to extract the developer posts about AI
+* dev_data_exploration.ipynb is the code used to do basic data exploration of these articles (post times, key words used, word count)
 
+News Articles code files:
