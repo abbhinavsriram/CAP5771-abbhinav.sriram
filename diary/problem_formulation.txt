@@ -1,4 +1,7 @@
-Early on, Aelly and I were super interested in exploring tech trends. We were initially drawn to looking at HackerNews data and trying to correlate it with media reporting (understanding how often topics popular on HackerNews eventually get media attention). However, we eventually realized that we might need to scale down the project to a more specific technology trend (and a better data source). Therefore, we decided to look specifically into the contrasting perspectives between developers and mainstream media on AI impact. Given their expertise, did developers understand certain nuances that media tended to ignore in favor of clicks, or did the two perspectives largely agree? Given the prevalence of the topic today, we thought it was a much more focused and exciting discussion to explore.
+Early on, Aelly and I were super interested in exploring tech trends. We were initially drawn to looking at HackerNews data and trying to correlate it with media reporting (understanding how often topics popular 
+on HackerNews eventually get media attention). However, we eventually realized that we might need to scale down the project to a more specific technology trend (and a better data source). Therefore, we decided to 
+look specifically into the contrasting perspectives between developers and mainstream media on AI impact. Given their expertise, did developers understand certain nuances that media tended to ignore in favor of 
+clicks, or did the two perspectives largely agree? Given the prevalence of the topic today, we thought it was a much more focused and exciting discussion to explore.
 
 Below is a copy of the problem formulation activity we did earlier in the semester:
 
@@ -7,7 +10,8 @@ Analyzing differences in AI concerns between developers and mainstream media sou
 Exploration
 HackerNews and Reddit for developer sentiment, GDELT for television news transcriptions, NYT API for articles, The Guardian API, webscraping or other news networks
 How do developer and mainstream media reactions differ in how AI could affect future job shifts?
-Developers have a unique take on AI because they understand the limitations of current AI models, while media sources tend to be more sensationalist and have more viewership, usually influencing regulation. Understanding the difference in reactions could help inform about a potential disconnect
+Developers have a unique take on AI because they understand the limitations of current AI models, while media sources tend to be more sensationalist and have more viewership, usually influencing regulation. 
+Understanding the difference in reactions could help inform about a potential disconnect
 Papers do exist that analyze news coverage of AI across different sectors. However, there are no studies that specifically look into the difference between developer sentiments and media coverage
 https://www.sciencedirect.com/science/article/abs/pii/S0736585324001278
 An  example of one of the studies
