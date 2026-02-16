@@ -29,7 +29,6 @@ def main(source_sqlite=None, destination_sqlite=None):
 
     for row in rows:
         post_id, title, url, published_at, tags, body_text, impressions = row
-        tags = tags.replace(",", "").replace(" ", ", ")
 
         c.execute("INSERT INTO DevPosts VALUES (?, ?, ?, ?, ?, ?)",
                   (post_id, title, url, published_at, tags, body_text))
