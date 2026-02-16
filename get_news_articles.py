@@ -1,11 +1,12 @@
+from datetime import datetime, timedelta
+from pandas import DataFrame, read_csv
+from matplotlib import pyplot as plt
 from huggingface_hub import login
 from datasets import load_dataset
 from os import remove, rename
-from os.path import isfile
-from pandas import DataFrame, read_csv
-from sqlite3 import connect
-from datetime import datetime, timedelta
 from threading import Thread
+from sqlite3 import connect
+from os.path import isfile
 
 try:
     from secrets import HF_TOKEN
@@ -174,7 +175,27 @@ def coalesce_articles():
     df.to_sql("NewsArticles", con=con, if_exists="replace")
 
 
+def examine_date_freq():
+    conn = connect("db.sqlite")
+    cur = conn.cursor()
+    cur.execute("select date from Articles")
+    dates = cur.fetchall()
+    month_counts = {}
+
+    for date in dates:
+        month = date[0][:7]
+        month_counts[month] = month_counts.get(month, 0) + 1
+    plt.xticks(rotation=90)
+    month_counts = sorted(month_counts.items(), key=lambda x: x[0])
+    months = [month[0] for month in month_counts]
+    counts = [month[1] for month in month_counts]
+
+    plt.bar(months, counts)
+    plt.show()
+
+
 if __name__ == "__main__":
     download_articles()
     coalesce_articles()
+    examine_date_freq()
     print("Done")

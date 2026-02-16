@@ -1,0 +1,9 @@
+
+
+News Articles
+In terms of data exploration for te news articles, there isn't much that can be examined statistically,
+    since most fields are text-based. The only meaningful analysis that could be done was to examine the date distribution
+    of the collected articles, as we were trying to get articles over a multiyear period. The frequency of articles per month
+    was graphed within the get_news_articles.py file, as it's own function, and it showed a fairly even distribution of data
+    across the years. As of the basic correctness of the dataset, this was confirmed by choosing a random selection
+    of articles and briefly skimming the text and other attributes, making sure it all seemed reasonable.
