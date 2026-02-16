@@ -20,3 +20,6 @@ Developer Posts code files:
 * dev_data_exploration.ipynb is the code used to do basic data exploration of these articles (post times, key words used, word count)
 
 News Articles code files:
+* get_news_articles.py is the code used to get news articles from the infini-news-corpus dataset, combine all the news data into a SQL table, and view the frequency of articles per month
+
+* combine_sqlite_dbs.py is the code used to combine the two SQLite databases into one. This was only needed during development. the current db.sqlite file should already include all the necessary data
