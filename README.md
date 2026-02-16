@@ -17,7 +17,7 @@ All of our data is stored on the SQLite file **db.sqlite**
 
 **Developer Posts code files:**
 
-We initially wrote the DEV API extraction and exploration code in two separate Jupyter notebooks (stored in the /dev_notebooks folder). However, to keep in line with assignment specifications, we transferred the code to two separate .py files (though we recommend looking at the ipynb files since they contain the outputs)
+We initially wrote the DEV API extraction and exploration code in two separate Jupyter notebooks (stored in the /dev_notebooks folder). However, to keep in line with assignment specifications, we transferred the code to two separate .py files (though we recommend looking at the ipynb files since they contain outputs and extra notes)
 
 * /dev_notebooks
   * get_dev_posts.ipynb is the code used to extract the developer posts about AI
