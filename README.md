@@ -31,3 +31,17 @@ News Articles code files:
 * get_news_articles.py is the code used to get news articles from the infini-news-corpus dataset, combine all the news data into a SQL table, and view the frequency of articles per month
 
 * combine_sqlite_dbs.py is the code used to combine the two SQLite databases into one. This was only needed during development. the current db.sqlite file should already include all the necessary data
+
+### Running Files
+To run our developer posts data acquisition file, run
+```
+python get_dev_posts.py
+```
+in the root directory
+
+
+To run our news articles data acquisition file, run
+```
+python get_news_articles.py
+```
+in the root directory

@@ -1,4 +1,4 @@
 Since our data is being collected from APIs, we are able to programmatically alter the structure to how we see fit.
-The DevPost data is collected from the API and inserted into a sqlite database, while the News data is streamed from Hugging Face and put into CSVs.
+The Developer posts data is collected from the forem dev.to API and inserted into a sqlite database, while the News data is streamed from Hugging Face and put into CSVs.
 Once enough News Articles have been collected, the CSVs are merged into a single file, which is then converted into a sqlite file via pandas.
 Once both datasets are in their own sqlite files, we merge them into a single database file, each with their own table.
