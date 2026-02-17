@@ -9,7 +9,7 @@ from sqlite3 import connect
 from os.path import isfile
 
 try:
-    from secrets import HF_TOKEN
+    from secret import HF_TOKEN
 except ImportError:
     if input("Would you like to login to Hugging Face Hub? (y/n) ").lower() == "y":
         HF_TOKEN = input("Enter your Hugging Face Access Token: ")
