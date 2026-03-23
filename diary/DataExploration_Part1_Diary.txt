@@ -1,0 +1,3 @@
+What features are you keeping for data preview (and why)?
+For your variables of interest, report descriptive values (e.g., counts, ranges, missingness, most common category, etc.).
+Include at least one screenshot/snippet or copy-paste output from .info() and .describe() (or an equivalent summary).
