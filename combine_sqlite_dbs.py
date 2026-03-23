@@ -1,5 +1,5 @@
-from os.path import isfile, isdir, join
 from pandas import read_csv, read_sql
+from os.path import isdir, join
 from sqlite3 import connect
 from os import listdir
 
