@@ -33,6 +33,8 @@ News Articles code files:
 * combine_sqlite_dbs.py is the code used to combine the two SQLite databases into one. This was only needed during development. the current db.sqlite file should already include all the necessary data
 
 ### Running Files
+All the data has already been acquired and is in the repo. Since running the data acquisition code takes multiple days, we advise you to run `combine_sqlite_dbs`, which will automatically generate the `db.sqlite` file
+
 To run our developer posts data acquisition file, run
 ```
 python get_dev_posts.py
