@@ -31,7 +31,7 @@ def main(source=None, dest=None):
     conn = connect(source)
     devposts = read_sql("SELECT * FROM articles", conn)
     conn.close()
-
+    devposts["tags"] = devposts["tags"].apply(lambda x: x.replace(",,,", ";").replace(",", "").replace(";", ","))
     conn = connect(dest)
     devposts.to_sql("DevPosts", con=conn, if_exists="delete_rows", index=False)
     layoffs.to_sql("Layoffs", con=conn, if_exists="delete_rows", index=False)
