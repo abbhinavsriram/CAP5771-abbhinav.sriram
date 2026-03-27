@@ -11,3 +11,7 @@
 .idea/
 
 secrets.py
+secret.py
+
+# DB is too big to push to github so just going to ignore it
+db.sqlite

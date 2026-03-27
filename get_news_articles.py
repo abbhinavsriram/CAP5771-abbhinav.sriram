@@ -2,13 +2,12 @@ from huggingface_hub import login
 from datasets import load_dataset
 from os import remove, rename
 from os.path import isfile
-from pandas import DataFrame, read_csv
-from sqlite3 import connect
+from pandas import DataFrame
 from datetime import datetime, timedelta
 from threading import Thread
 
 try:
-    from secrets import HF_TOKEN
+    from secret import HF_TOKEN
 except ImportError:
     if input("Would you like to login to Hugging Face Hub? (y/n) ").lower() == "y":
         HF_TOKEN = input("Enter your Hugging Face Access Token: ")
@@ -157,24 +156,6 @@ def download_articles(max_articles=1500):
         thread.join()
 
 
-def coalesce_articles():
-    years = ["2025", "2024", "2023", "2022", "2021"]
-
-    with open("news_data/ai_articles.csv", "w", encoding="utf-8") as csvfile:
-        csvfile.write("url,date,title,text,source\n")
-
-        for year in years:
-            with open(f"news_data/ai_articles_{year}.csv", "r", encoding="utf-8") as year_file:
-                lines = year_file.readlines()[1:]
-            csvfile.write("".join(lines))
-
-    # Convert to SQL database
-    df = read_csv("news_data/ai_articles.csv")
-    con = connect("db.sqlite")
-    df.to_sql("NewsArticles", con=con, if_exists="replace")
-
-
 if __name__ == "__main__":
     download_articles()
-    coalesce_articles()
     print("Done")

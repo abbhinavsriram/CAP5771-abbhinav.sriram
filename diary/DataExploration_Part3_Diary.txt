@@ -1,0 +1,10 @@
+Which feature or relationships do you want to explore?
+Why did you choose these variables?
+What did you expect to find?
+What did the visualizations reveal?
+Are relationships linear, nonlinear, weak, or strong?
+Did you observe clusters or group differences?
+Are any variables potentially redundant?
+What surprised you?
+Did any relationship contradict your initial hypothesis?
+Did any feature behave differently than expected?

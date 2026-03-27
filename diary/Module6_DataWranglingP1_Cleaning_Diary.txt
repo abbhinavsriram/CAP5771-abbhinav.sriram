@@ -1,0 +1,4 @@
+What are the top data problems you decided to fix first, and why these first?
+For each problem: what rule did you apply (drop, impute, normalize, convert, deduplicate) and why?
+Include at least one before vs after summary (counts, missingness table, value counts, or a small snippet).
+What risks remain? What choices might affect fairness, bias, or interpretation later?

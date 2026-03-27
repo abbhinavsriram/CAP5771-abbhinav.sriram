@@ -1,0 +1,3 @@
+What issues have you identified (duplicates, missingness, standardization, noise/outliers, etc.)?
+For each issue: where it appears (table/column), how big it is (counts/percent), and what can it mean.
+What questions would you ask your stakeholders to resolve these issues in the future?

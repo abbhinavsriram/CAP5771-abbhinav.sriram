@@ -1,0 +1,4 @@
+Which model(s) did you choose to try first, and why?
+Explain your reasoning in terms of the problem type (regression vs classification), interpretability, complexity, and data size.
+What assumptions does your model make about the data?
+What split will you decide for your train/validation/test? whay?

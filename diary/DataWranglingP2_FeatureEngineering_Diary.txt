@@ -1,0 +1,3 @@
+What features you engineered (or transformed), and why?
+What did you remove during feature selection, and what is your justification (relevance/ethics/redundancy)?
+Include at least one before vs after summary (value counts, distributions, correlation, or a small snippet).
