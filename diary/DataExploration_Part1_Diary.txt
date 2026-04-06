@@ -1,0 +1,44 @@
+What features are you keeping for data preview (and why)?
+For your variables of interest, report descriptive values (e.g., counts, ranges, missingness, most common category, etc.).
+Include at least one screenshot/snippet or copy-paste output from .info() and .describe() (or an equivalent summary).
+
+Features we plan to keep:
+* title: Sentiment analysis / topic modeling
+* text: Sentiment analysis / topic modeling
+* date posted: Model sentiment/topic changes over time
+
+Descriptive values:
+
+Developer Article length distribution
+count     2800.000000
+mean      1548.009643
+std       1222.125957
+min         34.000000
+10%        552.000000
+25%        820.000000
+50%       1245.000000
+75%       1884.000000
+90%       2825.400000
+max      23735.000000
+Name: word_count, dtype: float64
+IQR: 1064.0 words
+
+
+Developer Article title length distributions
+count    3024.000000
+mean        8.747024
+std         3.363002
+min         1.000000
+10%         5.000000
+25%         6.000000
+50%         8.000000
+75%        11.000000
+90%        13.000000
+max        21.000000
+Name: title_word_count, dtype: float64
+IQR: 5.0 words
+
+
+Developer article date range:
+(Timestamp('2019-11-04 18:09:42+0000', tz='UTC'),
+ Timestamp('2026-02-13 20:08:54+0000', tz='UTC'))

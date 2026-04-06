@@ -1,0 +1,15 @@
+What are the top data problems you decided to fix first, and why these first?
+For each problem: what rule did you apply (drop, impute, normalize, convert, deduplicate) and why?
+Include at least one before vs after summary (counts, missingness table, value counts, or a small snippet).
+What risks remain? What choices might affect fairness, bias, or interpretation later?
+
+
+Problem 1: Topic Drift in Developer Articles
+
+Importance: The core validity of the dataset depended on it. The AI-tagged articles on DEV.to and Hashnode skewed toward tutorials and implementation guides rather than commentary about AI's impact on the community.
+
+Rule applied: Drop using via clustering and zero-shot classification to filter out technical articles.
+
+Before vs. after: 25,672 articles -> 5,398
+
+Risks remaining: Around 2,000 retained articles were still flagged as technical by zero-shot classification, meaning some noise is still in the data. The difference between technical and non-technical articles is subjective, and some articles discussing AI ethics through a technical lens may have been dropped unfairly. Therefore, authors who might lean toward technical explanations of major issues in AI will be underrepresented by the data.

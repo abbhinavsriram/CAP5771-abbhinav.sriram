@@ -1,0 +1,6 @@
+What issues have you identified (duplicates, missingness, standardization, noise/outliers, etc.)?
+For each issue: where it appears (table/column), how big it is (counts/percent), and what can it mean.
+What questions would you ask your stakeholders to resolve these issues in the future?
+
+Fortunately, both datasets didn't have any major consistency issues wth duplicates or missing values (this was because we only used 3 fields, where there was not much scope for error). You can see this in our data exploration component.
+The major issue we face remains the actual content of the articles, and finding a way to determine which articles are actually relevant to understanding sentiment toward AI impact. We plan to explore solutions like clustering and zero-shot classification to help solve this problem.

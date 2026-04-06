@@ -1,0 +1,14 @@
+What features you engineered (or transformed), and why?
+What did you remove during feature selection, and what is your justification (relevance/ethics/redundancy)?
+Include at least one before vs after summary (value counts, distributions, correlation, or a small snippet).
+
+
+We engineered a few featuresto help us with removing excess articles and further categorization of the articles. First, we combined the title with a preview of the body text into a single `combined_text` field so that each article had one consistent representation for clustering and topic modeling.
+
+We first used clustering to identify groups of articles that were irrelevant to our problem formulation. We chose this because it was a computationally efficient way (compared to using an LLM to score each article) to significantly reduce the amount of noise in tehd data. We ended up retaining the cluster assignments as a feature for later exploration. 
+
+For developer articles, we noticed that some technical discussions remained in our data. Therefore, we ran a zero-shot classification (`TECHNICAL` vs. `NON_TECHNICAL`) to further filter out unrelated articles.
+
+After removing irrelevant articles, we ran a zero-shot classification algorithm to categorize the articles into one of 7 labels (environment, jobs, law, safety, etc.). This part, specifically, is crucial for our analysis.
+
+In the end, we reduced the number of developer articles from 25,672 articles -> 5,398 articles, and the number of news articles from 15023 -> 10457 for sentiment analysis.

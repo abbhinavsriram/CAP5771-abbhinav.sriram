@@ -13,7 +13,7 @@ To install the required modules, run the command
 pip install -r requirements.txt
 ```
 
-All of our data is stored on the SQLite file **db.sqlite**
+All of our data is stored in the SQLite file **db.sqlite**. This file isn't including in the repo since it is too large, instead you can generate it yourself by running the code in `generate_db.py`.
 
 **Developer Posts code files:**
 
