@@ -1,8 +1,22 @@
 Splitting this section up by each part of the analysis
 
 1. Dev posts
-The acquisition of the data was very difficult since we were trying to pull more conceptual discussion articles from a site which had a large concentation of technical-focused discussions without many options to filter on the server side through the API. We initially tried to just pull data from articles tagged with the "ai" keyword. However, we began to realize that this wasn't fully capturing our desired timeline (our data would only stretch back to 2023 since articles earlier than this year were improperly tagged). Therefore, we began to focus our search on find filters that would exclude articles that might not be a good fit, rather than trying to find a set of filters that would magically lead us to the right set of articles. It took multiple attempts for us to create a set of two keyword lists. One list consisted of manually handpicked tags that were less likely to contain discussions about AI (for instance, articles containing tags like php, kubernetes were excluded). Furthermore, we also created a keyword list consiting of words pertaining to our discussion focuses (context window issues, environment, etc.), requiring that any article that had at least 3 distinct words from our keyword list be added to our database, with anything less being removed from consideration. As a result of these filters, we were able to significantly reduce the number of articles we stored in our database from hundreds of thousands to ~3000 relevant articles.
+The acquisition of the data was very challenging since we were trying to pull more conceptual discussion articles from a site which had a large concentation of technical-focused discussions without many options to 
+filter on the server side through the API. We initially tried to just pull data from articles tagged with the "ai" keyword. However, we realized that there were too many posts tagged with this keyword for us to ingest. 
+Therefore, we began to focus our search on additional filters that would exclude articles that might not be a good fit. It took multiple attempts for us to create a set of two keyword lists. One list consisted of manually 
+handpicked tags that were less likely to contain discussions about AI (for instance, articles containing tags like php, kubernetes were excluded) which we passed into the API. Furthermore, we also created a keyword list consisting of words 
+pertaining to our discussion focuses (context window issues, environment, etc.), requiring that any article that had at least 3 distinct words from our keyword list be added to our database, with anything less 
+being removed from consideration. This filter was done locally. As a result of these filters, we were able to significantly reduce the number of articles we stored in our database from ~70000 to ~3000 relevant articles.
 
-However, after further data exploration, we realized that keyword matching might not be the only filter that we need. For instance, articles talking about 'environment' weren't discussing the environemntal impact of AI, but instead discussing developer CLIs. For next steps, we anticipate using vector embeddings and semantic searches to identify these anomalous articles by attempting to capture more deeper meanings rather than spelling similarity.
+However, after further data exploration, we realized that keyword matching might not be the only filter that we need. For instance, articles talking about 'environment' weren't discussing the environemntal impact 
+of AI, but instead discussing developer CLIs. For next steps, we anticipate using vector embeddings and semantic searches to identify these anomalous articles by attempting to capture more deeper meanings rather 
+than spelling similarity.
 
-2. News articles
+2. News Articles
+Gathering news data was tricky at first, mainly just because most news sites are paywalled and have aggressive bot detection. However, once the news dataset was found it was a 
+fairly straightforward process to just grab the data and store it. The biggest issue there was that there was so much data and so little was relevant, so it took almost a full day to just get the data for a single year.
+
+Now that the data is collected and filtered to just being AI related content, we can start our next steps of doing things like sentiment analysis and extract relevant information from the articles and the larger context they exist within.
+
+
+

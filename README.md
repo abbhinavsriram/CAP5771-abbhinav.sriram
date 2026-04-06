@@ -30,12 +30,20 @@ We initially wrote the DEV API extraction and exploration code in two separate J
 News Articles code files:
 * get_news_articles.py is the code used to get news articles from the infini-news-corpus dataset, combine all the news data into a SQL table, and view the frequency of articles per month
 
-
-* generate_db.py is the code used to generate our main DB file, `db.sqlite`. This file is the final product of the data acquisition files.
+* combine_sqlite_dbs.py is the code used to combine the two SQLite databases into one. This was only needed during development. the current db.sqlite file should already include all the necessary data
 
 ### Running Files
-To create the DB, run `python generate_db.py`. This file will use the preexisting data in `dev_notebooks/` and `news_data/` to create the DB. 
+All the data has already been acquired and is in the repo. Since running the data acquisition code takes multiple days, we advise you to run `combine_sqlite_dbs`, which will automatically generate the `db.sqlite` file
 
-**Note: Running the data acquisition files takes multiple days to complete, so we advise against it**
-To generate your own developer posts data, run `python get_dev_posts.py`.
-To generate your own news article data, run `python get_news_articles.py`.
+To run our developer posts data acquisition file, run
+```
+python get_dev_posts.py
+```
+in the root directory
+
+
+To run our news articles data acquisition file, run
+```
+python get_news_articles.py
+```
+in the root directory
