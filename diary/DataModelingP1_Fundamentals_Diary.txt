@@ -2,8 +2,8 @@ Which model(s) did you choose to try first, and why?
 Explain your reasoning in terms of the problem type (regression vs classification), interpretability, complexity, and data size.
 What assumptions does your model make about the data?
 What split will you decide for your train/validation/test? whay?
-Here's a refined version:
 
+BART (zero-shot classification)
 Model Choice & Reasoning: We chose Facebook's BART model for zero-shot classification. Since our data was unlabeled with respect to our desired categories, a supervised model would not be ideal. BART allowed us to get probabilistic category assignments without any fine-tuning, leveraging its large pretraining corpus with reasonable accuracy.
 
 Problem Type: This was a classification task. Zero-shot classification is well-suited here since we define the label space ourselves without needing labeled training data.
@@ -13,3 +13,14 @@ Interpretability/Complexity: The model itself is not interpretable, but the prob
 Data Size: ~5,400 developer articles and ~10,000 news articles, each averaging ~1,500 words. Only the first 1,500 characters were used per article due to token limits.
 
 Model Assumptions: The model assumes the topic category can be reliably inferred from the first 1,500 characters, which ignores any introductory prelude that may not be representative of the article's core topic.
+
+VADER (Sentiment analysis):
+Model Choice & Reasoning: We chose VADER model for benchmarking the sentiment analysis. This model, which is rule-based, gave us a baseline distribution of how the articles differed in sentiment without being too computationally heavy due to its rule basd approach.
+
+Problem Type: VADER can be used in both ways. The numeric value can be interpreted as regression, or it can be classified into a category and be considered a classification task.
+
+Interpretability/Complexity: VADER is relatively interpretable compared with deep models because predictions are formed from specific rules.
+
+Data Size: ~5,400 developer articles and ~10,000 news articles, each averaging ~1,500 words. each article was chunked into 300 words and scores were averaged.
+
+Model Assumptions: VADER was built specifically for social media, where strong words are used to express feeling. It may struggle more with articles (especially the news articles) which are less overt when expressing their opinions.

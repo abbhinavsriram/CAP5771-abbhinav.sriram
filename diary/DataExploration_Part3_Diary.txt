@@ -8,3 +8,10 @@ Are any variables potentially redundant?
 What surprised you?
 Did any relationship contradict your initial hypothesis?
 Did any feature behave differently than expected?
+
+
+We want to explore the relationship between the content of the text (sentiment analysis, topic modeling of what developers and journalists are discussing about AI, and their overall feeling of whether it is having a positive or negative impact on society) and the passage of time from 2020-2026 as AI adoption has exploded in popularity. Specifically, whether developers were discussing major concerns (e.g. hallucinations) or before they were covered in media. Therefore, we chose to explore the following 3 variables
+* date published
+* title
+* text
+Most of the exploration included creating clusters of the data as well as doing some basic topic modeling. During the LDA topic modeling, we noticed that both developers and journalists were specifically covering ChatGPT more than any other model. This was particularly interesting and indicated that despite the prevalence of other models (Gemini, Claude), ChatGPT seemed to be more present the conversation. Both developers and journalists seemed to cover the impact of AI on employment, although developers were specifically mentioning workflow and automation methods (e.g. chatbots) more than journalists (which makes sense given the nature of the articles they were most likely writing). Interestingly, we saw that journalists were discussing cybersecurity more than the developer articles, which surprised us!
