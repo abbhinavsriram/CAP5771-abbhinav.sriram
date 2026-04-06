@@ -3,7 +3,7 @@ What did you remove during feature selection, and what is your justification (re
 Include at least one before vs after summary (value counts, distributions, correlation, or a small snippet).
 
 
-We engineered a few featuresto help us with removing excess articles and further categorization of the articles. First, we combined the title with a preview of the body text into a single `combined_text` field so that each article had one consistent representation for clustering and topic modeling.
+We engineered a few features to help us with removing excess articles and further categorization of the articles. First, we combined the title with a preview of the body text into a single `combined_text` field so that each article had one consistent representation for clustering and topic modeling.
 
 We first used clustering to identify groups of articles that were irrelevant to our problem formulation. We chose this because it was a computationally efficient way (compared to using an LLM to score each article) to significantly reduce the amount of noise in tehd data. We ended up retaining the cluster assignments as a feature for later exploration. 
 
