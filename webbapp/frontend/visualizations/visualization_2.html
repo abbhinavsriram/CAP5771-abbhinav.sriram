@@ -55,19 +55,25 @@
         </nav>
         <div class="row">
             <h2>Dev Post Sentiment Analysis by Topic</h2>
-            <div class="col-lg-6 form">
+            <div class="col-lg-6">
+                    <div class="form">
+                    <label for="topic-choice">Choose A Topic:</label>
+                    <select id="topic-choice" class="form-control" name="topic-choice">
+                      <option value="-1">All</option>
+                      <option value="0">code, software, development</option>
+                      <option value="1">models, model, google</option>
+                      <option value="2">just, like, work</option>
+                      <option value="3">learning, machine, artificial</option>
+                      <option value="4">enterprise, 2025, artificial</option>
+                    </select>
 
-                <label for="topic-choice">Choose A Topic:</label>
-                <select id="topic-choice" class="form-control" name="topic-choice">
-                  <option value="-1">All</option>
-                  <option value="0">code, software, development</option>
-                  <option value="1">models, model, google</option>
-                  <option value="2">just, like, work</option>
-                  <option value="3">learning, machine, artificial</option>
-                  <option value="4">enterprise, 2025, artificial</option>
-                </select>
-
-                <button class="btn btn-primary" id="run_model" onclick="generate_sen_by_topic_chart()">Generate Graph</button>
+                    <button class="btn btn-primary" id="run_model" onclick="generate_sen_by_topic_chart()">Generate Graph</button>
+                </div>
+                <div id="param_explainer" class="mt-5">
+                    <ul class="list-group bg-dark text-light">
+                        <li class="list-group-item bg-dark text-light">Topic Choice: What topics to filter the DevPosts by, to analyze the sentiment distribution</li>
+                    </ul>
+                </div>
             </div>
             <div id="sen_by_topic" class="col-lg-6 align-self-center align-items-center">
                 <img src="../images/default_sentiment_by_topic.png?t=213435" alt="Placeholder Image" class="img-fluid">

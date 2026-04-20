@@ -54,13 +54,19 @@
           </div>
         </nav>
         <div class="row">
-            <div class="col-lg-4 form">
+            <div class="col-lg-4">
+                <div class="form">
+                    <label class="form-label" id="output_post_per_month_threshold" for="post_per_month_threshold">Post Per Month: 5</label>
+                    <input class="form-range" type="range" id="post_per_month_threshold" name="post_per_month_threshold" min="0" max="100" step="5" value="5" oninput="update_slider_output('post_per_month_threshold', 'Post Per Month Threshold: ')"/>
 
-                <label class="form-label" id="output_post_per_month_threshold" for="post_per_month_threshold">Post Per Month: 5</label>
-                <input class="form-range" type="range" id="post_per_month_threshold" name="post_per_month_threshold" min="0" max="100" step="5" value="5" oninput="update_slider_output('post_per_month_threshold', 'Post Per Month Threshold: ')"/>
 
-
-                <button class="btn btn-primary" id="run_model" onclick="generate_topic_disc_over_time_chart()">Generate Graph</button>
+                    <button class="btn btn-primary" id="run_model" onclick="generate_topic_disc_over_time_chart()">Generate Graph</button>
+                </div>
+                <div id="param_explainer" class="mt-5">
+                    <ul class="list-group bg-dark text-light">
+                        <li class="list-group-item bg-dark text-light">Post Per Month: The minimum number of posts a user must have made in a month to be considered</li>
+                    </ul>
+                </div>
             </div>
             <div id="topic_disc_over_time" class="col-lg-8 align-self-center align-items-center px-5">
                 <img src="../images/default_topic_disc_over_time.png?t=213435" alt="Placeholder Image" class="img-fluid">
