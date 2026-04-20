@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 
-from charting_functions import generate_sen_by_len_chart, generate_sen_by_topic, generate_topic_disc_over_time
+from charting_functions import generate_sen_by_len_chart, generate_sen_by_topic, generate_topic_disc_over_time, generate_sent_change_over_time
 
 app = Flask(__name__)
 # CORS(app, resources={r"/*": {"origins": "https://unaccusing-georgeanna-triboelectric.ngrok-free.dev",}}, supports_credentials=True)
@@ -9,8 +9,9 @@ CORS(app, resources={r"/*": {"origins": "http://localhost:5001",}}, supports_cre
 
 
 chart_dict = {
-    "sen_by_len": generate_sen_by_len_chart,
     "sen_by_topic": generate_sen_by_topic,
+    "sen_by_len": generate_sen_by_len_chart,
+    "sen_over_time": generate_sent_change_over_time,
     "topic_disc_over_time": generate_topic_disc_over_time,
 }
 
