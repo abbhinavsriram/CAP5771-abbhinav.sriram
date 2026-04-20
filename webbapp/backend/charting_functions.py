@@ -170,3 +170,6 @@ def generate_sent_change_over_time(data, filename="sen_over_time.png"):
 
 
 generate_sent_change_over_time({"params": {}}, filename="default_sen_over_time.png")
+generate_sen_by_topic({"params": {}}, filename="default_sentiment_by_topic.png")
+generate_sen_by_len_chart({"params": {}}, filename="default_sentiment_dist_over_length.png")
+generate_topic_disc_over_time({"params": {}}, filename="default_topic_disc_over_time.png")
