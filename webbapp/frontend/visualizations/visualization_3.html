@@ -56,19 +56,14 @@
         <div class="row">
             <div class="col-lg-4 form">
 
-                <label class="form-label" id="output_sentiment_threshold" for="sentiment_threshold">Sentiment Threshold: 0</label>
-                <input class="form-range" type="range" id="sentiment_threshold" name="sentiment_threshold" min="-1" max="1" step="0.1" oninput="update_slider_output('sentiment_threshold', 'Sentiment Threshold: ')"/>
+                <label class="form-label" id="output_post_per_month_threshold" for="post_per_month_threshold">Post Per Month: 5</label>
+                <input class="form-range" type="range" id="post_per_month_threshold" name="post_per_month_threshold" min="0" max="100" step="5" value="5" oninput="update_slider_output('post_per_month_threshold', 'Post Per Month Threshold: ')"/>
 
-                <label class="form-label" id="output_news_length_threshold" for="news_length_threshold">News Length Threshold: 55000</label>
-                <input class="form-range" type="range" id="news_length_threshold" name="news_length_threshold" min="10000" max="100000" step="1000" oninput="update_slider_output('news_length_threshold', 'News Length Threshold: ')"/>
 
-                <label class="form-label" id="output_devposts_length_threshold" for="devposts_length_threshold">DevPost Length Threshold: 55000</label>
-                <input class="form-range" type="range" id="devposts_length_threshold" name="devposts_length_threshold" min="10000" max="100000" step="1000" oninput="update_slider_output('devposts_length_threshold', 'DevPost Length Threshold: ')"/>
-
-                <button class="btn btn-primary" id="run_model" onclick="generate_sen_by_len_chart()">Generate Graph</button>
+                <button class="btn btn-primary" id="run_model" onclick="generate_topic_disc_over_time_chart()">Generate Graph</button>
             </div>
-            <div id="sen_by_len" class="col-lg-8 align-self-center align-items-center px-5">
-                <img src="../frontend/images/default_sentiment_dist_over_length.png?t=213435" alt="Placeholder Image" class="img-fluid">
+            <div id="topic_disc_over_time" class="col-lg-8 align-self-center align-items-center px-5">
+                <img src="../images/default_topic_disc_over_time.png?t=213435" alt="Placeholder Image" class="img-fluid">
             </div>
         </div>
     </div>

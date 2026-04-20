@@ -3,10 +3,26 @@ import matplotlib.pyplot as plt
 from matplotlib import use as plt_use
 import seaborn as sns
 from sqlite3 import connect
+from datetime import datetime
 
 DB_FILE = "../../db.sqlite"
 TOPIC_LIST = ["code, software, development", "models, model, google", "just, like, work", "learning, machine, artificial", "enterprise, 2025, artificial"]
 plt_use("agg")
+
+def save_plot(filename, fig=None):
+
+    if fig:
+        fig.savefig(f"../frontend/images/{filename}", dpi=300, bbox_inches="tight")
+        fig.clear()
+        plt.close(fig)
+    else:
+        plt.savefig(f"../frontend/images/{filename}", dpi=300, bbox_inches="tight")
+        plt.close()
+
+    return f"/images/{filename}"
+
+
+# Sentiment Distribution Over Length
 
 def get_sentiment_dist_over_length(table_name, column, date_column, sentiment_threshold=0.0, length_threshold=500000):
     query = f"""SELECT {column}, IF(roberta_pos_score - roberta_neg_score > {sentiment_threshold}, 'positive', 'negative') sentiment, strftime('%Y-%m', {date_column}) month_released
@@ -21,7 +37,7 @@ def get_sentiment_dist_over_length(table_name, column, date_column, sentiment_th
     return df
 
 
-def generate_sen_by_len_chart(data, filename="sentiment_dist_over_length.png"):
+def generate_sen_by_len_chart(data, filename="sen_by_len.png"):
     print("Got data", data)
     sentiment_threshold = float(data["params"].get("sentiment_threshold", 0))
     news_length_threshold = int(data["params"].get("news_length_threshold", 55000))
@@ -48,12 +64,10 @@ def generate_sen_by_len_chart(data, filename="sentiment_dist_over_length.png"):
     fig.supylabel("Length (chars)")
     fig.supxlabel("Sentiment")
 
-    chart_filepath = f"../frontend/images/{filename}"
-    fig.savefig(chart_filepath, dpi=300, bbox_inches="tight")
-    fig.clear()
-    plt.close(fig)
-    return chart_filepath
+    return save_plot(filename, fig)
 
+
+# Dev Post Sentiment Distribution over Topic
 
 def get_sent_by_topic(topic_choice):
     query = f"""SELECT SUM(IF(roberta_pos_score - roberta_neg_score >= 0, 1, 0)) * 100 / count(*) positive,
@@ -68,7 +82,7 @@ def get_sent_by_topic(topic_choice):
     return df
 
 
-def generate_sen_by_topic(data, filename="sentiment_by_topic.png"):
+def generate_sen_by_topic(data, filename="sen_by_topic.png"):
     topic_choice = int(data["params"].get("topic_choice", "-1"))
 
     df = get_sent_by_topic(topic_choice)
@@ -83,9 +97,39 @@ def generate_sen_by_topic(data, filename="sentiment_by_topic.png"):
     else:
         plt.title("Developer Posts Sentiment Analysis Percentage")
 
-    chart_filepath = f"../frontend/images/{filename}"
-    plt.savefig(chart_filepath, dpi=300, bbox_inches="tight")
-    plt.close()
+    return save_plot(filename)
 
-    return chart_filepath
 
+# Topic Discussion Amount over Time
+def get_topic_disc_over_time(post_per_month_threshold):
+    query = f"""SELECT strftime('%Y-%m', published_at) month_released,
+    SUM(IF(dominant_topic = 0, 1, 0)) topic_0,
+    SUM(IF(dominant_topic = 1, 1, 0)) topic_1,
+    SUM(IF(dominant_topic = 2, 1, 0)) topic_2,
+    SUM(IF(dominant_topic = 3, 1, 0)) topic_3,
+    SUM(IF(dominant_topic = 4, 1, 0)) topic_4
+                    FROM DevPosts
+                    where published_at < "2026-03-01"
+                    GROUP BY month_released
+                    HAVING COUNT(*) > {post_per_month_threshold}
+                    ORDER BY month_released;"""
+
+    conn = connect(DB_FILE)
+    print("Running query")
+    df = read_sql(query, conn)
+    conn.close()
+    df["month_released"] = df["month_released"].apply(lambda x: datetime.strptime(x, "%Y-%m"))
+    for i in range(5):
+        plt.plot(df["month_released"], df[f"topic_{i}"], label=f"Topic {i}: {TOPIC_LIST[i]} ")
+
+
+def generate_topic_disc_over_time(data, filename="topic_disc_over_time.png"):
+    post_per_month_threshold = int(data["params"].get("post_per_month_threshold", 5))
+    get_topic_disc_over_time(post_per_month_threshold)
+    plt.xlabel("Month")
+    plt.ylabel("Topic")
+    plt.title("Topic Change over Months")
+    plt.xticks(rotation=90)
+    plt.legend()
+
+    return save_plot(filename)

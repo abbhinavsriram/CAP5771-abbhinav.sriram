@@ -30,7 +30,7 @@ async function generate_chart(chart_name, params) {
             alert(`Response status: ${response.status}`);
         } else {
             let response_json = await response.json();
-            let filepath = response_json['filepath'] + "?t=" + new Date().getTime()
+            let filepath = `/images/${chart_name}.png?t=${new Date().getTime()}`
 
             console.log("Response: " + filepath)
             chart.html(`<img src="${filepath}" alt="${chart_name}" class="img-fluid">`);
@@ -64,4 +64,14 @@ async function generate_sen_by_topic_chart() {
     }
 
     await generate_chart("sen_by_topic", params)
+}
+
+async function generate_topic_disc_over_time_chart() {
+    let post_per_month_threshold = $("#post_per_month_threshold").val()
+
+    let params = {
+        "post_per_month_threshold": post_per_month_threshold,
+    }
+
+    await generate_chart("topic_disc_over_time", params)
 }
