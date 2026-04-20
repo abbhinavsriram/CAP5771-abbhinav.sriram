@@ -1,8 +1,7 @@
 from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
-from os import getcwd
 
-from charting_functions import generate_sen_by_len_chart
+from charting_functions import generate_sen_by_len_chart, generate_sen_by_topic
 
 app = Flask(__name__)
 # CORS(app, resources={r"/*": {"origins": "https://unaccusing-georgeanna-triboelectric.ngrok-free.dev",}}, supports_credentials=True)
@@ -11,6 +10,7 @@ CORS(app, resources={r"/*": {"origins": "http://localhost:5001",}}, supports_cre
 
 chart_dict = {
     "sen_by_len": generate_sen_by_len_chart,
+    "sen_by_topic": generate_sen_by_topic,
 }
 
 @app.route('/', methods=['GET'])
@@ -57,7 +57,7 @@ def generate_chart():
             'error': str(e)}), 500
 
 @app.route('/frontend/images/<path:filename>', methods=['GET'])
-def sen_by_len_chart(filename):
+def serve_chart_image(filename):
     print(f"Getting image: {filename}")
     with open(f"../frontend/images/{filename}", "rb") as f:
         image_content = f.read()

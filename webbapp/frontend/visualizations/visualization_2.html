@@ -54,21 +54,23 @@
           </div>
         </nav>
         <div class="row">
-            <div class="col-lg-4 form">
+            <h2>Dev Post Sentiment Analysis by Topic</h2>
+            <div class="col-lg-6 form">
 
-                <label class="form-label" id="output_sentiment_threshold" for="sentiment_threshold">Sentiment Threshold: 0</label>
-                <input class="form-range" type="range" id="sentiment_threshold" name="sentiment_threshold" min="-1" max="1" step="0.1" oninput="update_slider_output('sentiment_threshold', 'Sentiment Threshold: ')"/>
+                <label for="topic-choice">Choose A Model:</label>
+                <select id="topic-choice" class="form-control" name="topic-choice">
+                  <option value="-1">All</option>
+                  <option value="0">code, software, development</option>
+                  <option value="1">models, model, google</option>
+                  <option value="2">just, like, work</option>
+                  <option value="3">learning, machine, artificial</option>
+                  <option value="4">enterprise, 2025, artificial</option>
+                </select>
 
-                <label class="form-label" id="output_news_length_threshold" for="news_length_threshold">News Length Threshold: 55000</label>
-                <input class="form-range" type="range" id="news_length_threshold" name="news_length_threshold" min="10000" max="100000" step="1000" oninput="update_slider_output('news_length_threshold', 'News Length Threshold: ')"/>
-
-                <label class="form-label" id="output_devposts_length_threshold" for="devposts_length_threshold">DevPost Length Threshold: 55000</label>
-                <input class="form-range" type="range" id="devposts_length_threshold" name="devposts_length_threshold" min="10000" max="100000" step="1000" oninput="update_slider_output('devposts_length_threshold', 'DevPost Length Threshold: ')"/>
-
-                <button class="btn btn-primary" id="run_model" onclick="generate_sen_by_len_chart()">Generate Graph</button>
+                <button class="btn btn-primary" id="run_model" onclick="generate_sen_by_topic_chart()">Generate Graph</button>
             </div>
-            <div id="sen_by_len" class="col-lg-8 align-self-center align-items-center px-5">
-                <img src="../frontend/images/default_sentiment_dist_over_length.png?t=213435" alt="Placeholder Image" class="img-fluid">
+            <div id="sen_by_topic" class="col-lg-6 align-self-center align-items-center">
+                <img src="../frontend/images/default_sentiment_by_topic.png?t=213435" alt="Placeholder Image" class="img-fluid">
             </div>
         </div>
     </div>

@@ -55,3 +55,13 @@ async function generate_sen_by_len_chart() {
 
     await generate_chart("sen_by_len", params)
 }
+
+async function generate_sen_by_topic_chart() {
+    let topic_choice = $("#topic-choice").val()
+
+    let params = {
+        "topic_choice": topic_choice,
+    }
+
+    await generate_chart("sen_by_topic", params)
+}

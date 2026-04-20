@@ -5,6 +5,7 @@ import seaborn as sns
 from sqlite3 import connect
 
 DB_FILE = "../../db.sqlite"
+TOPIC_LIST = ["code, software, development", "models, model, google", "just, like, work", "learning, machine, artificial", "enterprise, 2025, artificial"]
 plt_use("agg")
 
 def get_sentiment_dist_over_length(table_name, column, date_column, sentiment_threshold=0.0, length_threshold=500000):
@@ -49,8 +50,42 @@ def generate_sen_by_len_chart(data, filename="sentiment_dist_over_length.png"):
 
     chart_filepath = f"../frontend/images/{filename}"
     fig.savefig(chart_filepath, dpi=300, bbox_inches="tight")
+    fig.clear()
+    plt.close(fig)
     return chart_filepath
 
 
+def get_sent_by_topic(topic_choice):
+    query = f"""SELECT SUM(IF(roberta_pos_score - roberta_neg_score >= 0, 1, 0)) * 100 / count(*) positive,
+            SUM(IF(roberta_pos_score - roberta_neg_score <= 0, 1, 0)) * 100 / count(*) negative
+                    FROM DevPosts
+                    WHERE dominant_topic {'=' if topic_choice != -1 else '!='} {topic_choice}
+                    GROUP BY dominant_topic;"""
+    conn = connect(DB_FILE)
 
+    df = read_sql(query, conn).transpose()
+    conn.close()
+    return df
+
+
+def generate_sen_by_topic(data, filename="sentiment_by_topic.png"):
+    topic_choice = int(data["params"].get("topic_choice", "-1"))
+
+    df = get_sent_by_topic(topic_choice)
+    if topic_choice == -1:
+        df[0] = df.sum(axis=1)
+        df = df[[0]]
+
+    plt.pie(df[0], labels=["Positive", "Negative"], autopct="%1.1f%%")
+    if topic_choice != -1:
+        plt.title("Developer Posts Sentiment Analysis Percentage by Topic")
+        plt.figtext(0.33, 0.05, f"Topic Keywords: {TOPIC_LIST[int(topic_choice)]}")
+    else:
+        plt.title("Developer Posts Sentiment Analysis Percentage")
+
+    chart_filepath = f"../frontend/images/{filename}"
+    plt.savefig(chart_filepath, dpi=300, bbox_inches="tight")
+    plt.close()
+
+    return chart_filepath
 
