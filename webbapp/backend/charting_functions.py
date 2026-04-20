@@ -133,3 +133,40 @@ def generate_topic_disc_over_time(data, filename="topic_disc_over_time.png"):
     plt.legend()
 
     return save_plot(filename)
+
+
+# Get sentiment over month
+def get_sentiment_change_over_months(table_name, column, sentiment_threshold=0, post_per_month_threshold=5):
+    query = f"""SELECT strftime('%Y-%m', {column}) month_released,
+    SUM(IF(roberta_pos_score - roberta_neg_score >= {sentiment_threshold}, 1, 0)) * 100 / count(*) positive,
+    SUM(IF(roberta_pos_score - roberta_neg_score <= -{sentiment_threshold}, 1, 0)) * 100 / count(*) negative
+                FROM {table_name}
+                WHERE month_released BETWEEN "2021-01" AND "2025-12"
+                GROUP BY month_released
+                HAVING COUNT(*) > {post_per_month_threshold}
+                ORDER BY month_released;"""
+    conn = connect(DB_FILE)
+
+    df = read_sql(query, conn)
+    df["month_released"] = df["month_released"].apply(lambda x: datetime.strptime(x, "%Y-%m"))
+    return df
+
+def generate_sent_change_over_time(data, filename="sen_over_time.png"):
+    sentiment_threshold = data["params"].get("sentiment_threshold", 0)
+    post_per_month_threshold = data["params"].get("post_per_month_threshold", 5)
+    articles_df = get_sentiment_change_over_months("modified_articles", "date", sentiment_threshold=sentiment_threshold, post_per_month_threshold=post_per_month_threshold)
+    dp_df = get_sentiment_change_over_months("DevPosts", "published_at", sentiment_threshold=sentiment_threshold, post_per_month_threshold=post_per_month_threshold)
+
+    plt.plot(articles_df["month_released"], articles_df["negative"], label="Negative News Articles")
+    plt.plot(articles_df["month_released"], articles_df["positive"], label="Positive News Articles")
+
+    plt.plot(dp_df["month_released"], dp_df["negative"], label="Negative DevPosts")
+    plt.plot(dp_df["month_released"], dp_df["positive"], label="Positive DevPosts")
+    plt.xlabel("Year")
+    plt.ylabel("Sentiment %")
+    plt.title("Sentiment Change over Year")
+    plt.legend()
+    save_plot(filename)
+
+
+generate_sent_change_over_time({"params": {}}, filename="default_sen_over_time.png")
