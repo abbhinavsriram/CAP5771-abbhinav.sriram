@@ -2,10 +2,22 @@ from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 
 from charting_functions import generate_sen_by_len_chart, generate_sen_by_topic, generate_topic_disc_over_time
+from similarity_search import EmbeddingPipeline
 
 app = Flask(__name__)
 # CORS(app, resources={r"/*": {"origins": "https://unaccusing-georgeanna-triboelectric.ngrok-free.dev",}}, supports_credentials=True)
 CORS(app, resources={r"/*": {"origins": "http://localhost:5001",}}, supports_credentials=True)
+
+# Initialize embedding pipeline on startup
+print("⚡ Loading embeddings for similarity search...")
+pipeline = None
+try:
+    pipeline = EmbeddingPipeline("../../db.sqlite")
+    pipeline.load_embeddings_to_memory()
+    print("✅ Embeddings loaded successfully")
+except Exception as e:
+    print(f"⚠️  Could not load embeddings: {e}")
+    print("   Run: python similarity_search.py")
 
 
 chart_dict = {
@@ -83,6 +95,35 @@ def favicons(filename):
     response.status_code = 200
     response.data = image_content
     return response
+
+@app.route('/find_similar', methods=['POST'])
+def find_similar():
+    """Find similar articles based on pasted text"""
+    if pipeline is None:
+        return jsonify({'error': 'Embeddings not loaded. Run similarity_search.py first.'}), 500
+
+    try:
+        data = request.get_json()
+        text = data.get('text', '').strip()
+        top_k = data.get('top_k', 10)
+        sentiment_threshold = data.get('sentiment_threshold', 0.3)
+
+        if not text:
+            return jsonify({'error': 'No text provided'}), 400
+
+        # Find similar articles
+        results = pipeline.find_similar(
+            text,
+            top_k=top_k,
+            sentiment_threshold=sentiment_threshold,
+            show_scores=True
+        )
+
+        return jsonify(results)
+
+    except Exception as e:
+        print(f"Error in find_similar: {e}")
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)
