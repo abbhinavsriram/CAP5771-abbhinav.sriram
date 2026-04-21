@@ -6,7 +6,11 @@ from sqlite3 import connect
 from datetime import datetime
 
 DB_FILE = "../../db.sqlite"
-TOPIC_LIST = ["code, software, development", "models, model, google", "just, like, work", "learning, machine, artificial", "enterprise, 2025, artificial"]
+NEWS_TOPIC_LIST = ["jobs, work, leaders", "data, learning, machine", "generative, chatgpt, content", "tech, industry, world", "google, openai, company"]
+DP_TOPIC_LIST = ["code, software, development", "models, model, google", "just, like, work", "learning, machine, artificial", "enterprise, 2025, artificial"]
+TABLE_TOPIC_LIST = {
+    "modified_articles": NEWS_TOPIC_LIST,
+    "devposts": DP_TOPIC_LIST}
 plt_use("agg")
 
 def save_plot(filename, fig=None):
@@ -38,7 +42,6 @@ def get_sentiment_dist_over_length(table_name, column, date_column, sentiment_th
 
 
 def generate_sen_by_len_chart(data, filename="sen_by_len.png"):
-    print("Got data", data)
     sentiment_threshold = float(data["params"].get("sentiment_threshold", 0))
     news_length_threshold = int(data["params"].get("news_length_threshold", 55000))
     devposts_length_threshold = int(data["params"].get("devposts_length_threshold", 55000))
@@ -64,15 +67,15 @@ def generate_sen_by_len_chart(data, filename="sen_by_len.png"):
     fig.supylabel("Length (chars)")
     fig.supxlabel("Sentiment")
 
-    return save_plot(filename, fig)
+    save_plot(filename, fig)
 
 
-# Dev Post Sentiment Distribution over Topic
+# Sentiment Distribution over Topic
 
-def get_sent_by_topic(topic_choice):
+def get_sent_by_topic(topic_choice, table_name):
     query = f"""SELECT SUM(IF(roberta_pos_score - roberta_neg_score >= 0, 1, 0)) * 100 / count(*) positive,
             SUM(IF(roberta_pos_score - roberta_neg_score <= 0, 1, 0)) * 100 / count(*) negative
-                    FROM DevPosts
+                    FROM {table_name}
                     WHERE dominant_topic {'=' if topic_choice != -1 else '!='} {topic_choice}
                     GROUP BY dominant_topic;"""
     conn = connect(DB_FILE)
@@ -84,55 +87,63 @@ def get_sent_by_topic(topic_choice):
 
 def generate_sen_by_topic(data, filename="sen_by_topic.png"):
     topic_choice = int(data["params"].get("topic_choice", "-1"))
+    table_name = data["params"].get("table_name", "modified_articles")
 
-    df = get_sent_by_topic(topic_choice)
+    df = get_sent_by_topic(topic_choice, table_name)
     if topic_choice == -1:
         df[0] = df.sum(axis=1)
         df = df[[0]]
 
+    formal_table_name = "News Articles" if table_name == "modified_articles" else "Developer Posts"
+
     plt.pie(df[0], labels=["Positive", "Negative"], autopct="%1.1f%%")
     if topic_choice != -1:
-        plt.title("Developer Posts Sentiment Analysis Percentage by Topic")
-        plt.figtext(0.33, 0.05, f"Topic Keywords: {TOPIC_LIST[int(topic_choice)]}")
+        topic_list = TABLE_TOPIC_LIST[table_name.lower()]
+        plt.title(f"{formal_table_name} Sentiment Analysis Percentage by Topic")
+        plt.figtext(0.33, 0.05, f"Topic Keywords: {topic_list[int(topic_choice)]}")
     else:
-        plt.title("Developer Posts Sentiment Analysis Percentage")
+        plt.title(f"{formal_table_name} Sentiment Analysis Percentage")
 
-    return save_plot(filename)
+    save_plot(filename)
 
 
 # Topic Discussion Amount over Time
-def get_topic_disc_over_time(post_per_month_threshold):
-    query = f"""SELECT strftime('%Y-%m', published_at) month_released,
-    SUM(IF(dominant_topic = 0, 1, 0)) topic_0,
-    SUM(IF(dominant_topic = 1, 1, 0)) topic_1,
-    SUM(IF(dominant_topic = 2, 1, 0)) topic_2,
-    SUM(IF(dominant_topic = 3, 1, 0)) topic_3,
-    SUM(IF(dominant_topic = 4, 1, 0)) topic_4
-                    FROM DevPosts
-                    where published_at < "2026-03-01"
+def get_topic_disc_over_time(post_per_month_threshold, table_name, date_column):
+    query = f"""SELECT strftime('%Y-%m', {date_column}) month_released,
+    SUM(IF(dominant_topic = 0, 1, 0)) * 100 / count(*) topic_0,
+    SUM(IF(dominant_topic = 1, 1, 0)) * 100 / count(*) topic_1,
+    SUM(IF(dominant_topic = 2, 1, 0)) * 100 / count(*) topic_2,
+    SUM(IF(dominant_topic = 3, 1, 0)) * 100 / count(*) topic_3,
+    SUM(IF(dominant_topic = 4, 1, 0)) * 100 / count(*) topic_4
+                    FROM {table_name}
+                    where {date_column} < "2025-12-01"
                     GROUP BY month_released
                     HAVING COUNT(*) > {post_per_month_threshold}
                     ORDER BY month_released;"""
 
     conn = connect(DB_FILE)
-    print("Running query")
     df = read_sql(query, conn)
     conn.close()
+
     df["month_released"] = df["month_released"].apply(lambda x: datetime.strptime(x, "%Y-%m"))
+
+    formal_table_name = "News Articles" if table_name == "modified_articles" else "Developer Posts"
     for i in range(5):
-        plt.plot(df["month_released"], df[f"topic_{i}"], label=f"Topic {i}: {TOPIC_LIST[i]} ")
+        plt.plot(df["month_released"], df[f"topic_{i}"], label=f"{formal_table_name} Topic {i + 1}")
 
 
 def generate_topic_disc_over_time(data, filename="topic_disc_over_time.png"):
+    plt.figure(figsize=(10, 5))
     post_per_month_threshold = int(data["params"].get("post_per_month_threshold", 5))
-    get_topic_disc_over_time(post_per_month_threshold)
+    get_topic_disc_over_time(post_per_month_threshold, "devposts", "published_at")
+    get_topic_disc_over_time(post_per_month_threshold, "modified_articles", "date")
     plt.xlabel("Month")
     plt.ylabel("Topic")
     plt.title("Topic Change over Months")
     plt.xticks(rotation=90)
     plt.legend()
 
-    return save_plot(filename)
+    save_plot(filename)
 
 
 # Get sentiment over month
@@ -167,6 +178,7 @@ def generate_sent_change_over_time(data, filename="sen_over_time.png"):
     plt.title("Sentiment Change over Year")
     plt.legend()
     save_plot(filename)
+
 
 
 generate_sent_change_over_time({"params": {}}, filename="default_sen_over_time.png")
