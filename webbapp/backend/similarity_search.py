@@ -44,35 +44,7 @@ class EmbeddingPipeline:
         print(f"   Loaded {len(df):,} articles")
         return df, table_name
 
-    def get_tables_in_db(self):
-        """Return all user tables in the sqlite database."""
-        conn = sqlite3.connect(self.db_path)
-        tables = pd.read_sql_query(
-            """
-            SELECT name
-            FROM sqlite_master
-            WHERE type = 'table' AND name NOT LIKE 'sqlite_%'
-            ORDER BY name
-            """,
-            conn,
-        )
-        conn.close()
-        return tables["name"].tolist()
 
-    def select_default_tables(self, max_tables=2):
-        """Pick up to max_tables likely article tables from the DB."""
-        available_tables = self.get_tables_in_db()
-        preferred_order = ["article_classifications", "DevPosts", "Articles", "NewsArticles"]
-        selected = [table for table in preferred_order if table in available_tables]
-
-        if len(selected) < max_tables:
-            for table in available_tables:
-                if table not in selected:
-                    selected.append(table)
-                if len(selected) >= max_tables:
-                    break
-
-        return selected[:max_tables]
 
     def combine_text(self, row, max_chars=1500):
         """Combine title and body for embedding"""
@@ -98,15 +70,6 @@ class EmbeddingPipeline:
 
         print(f"Embeddings shape: {embeddings.shape}")
         return embeddings
-
-    def add_sentiment_scores(self, df):
-        """Add a single sentiment score column used by similarity search."""
-        scores = []
-        for _, row in tqdm(df.iterrows(), total=len(df), desc="Scoring sentiment"):
-            text = self.combine_text(row, max_chars=1000)
-            scores.append(self.sentiment_analyzer.polarity_scores(text)["compound"])
-        df["embedding_sentiment_score"] = scores
-        return df
 
     def encode_embeddings(self, embeddings):
         """Convert numpy arrays to base64-encoded pickle for SQLite storage"""
@@ -199,9 +162,9 @@ class EmbeddingPipeline:
         conn = sqlite3.connect(self.db_path)
 
         query = """
-            SELECT id, title, embedding,
-                   primary_label, secondary_label, embedding_sentiment_score
-            FROM modified_articles
+            SELECT title, body_text, embedding,
+                   dominant_topic, secondary_label
+            FROM DevPosts
             WHERE embedding IS NOT NULL
         """
 
@@ -255,14 +218,6 @@ class EmbeddingPipeline:
             :1000
         ])["compound"]
 
-        # Filter by sentiment if threshold provided
-        if sentiment_threshold > 0:
-            article_sentiments = self.articles_cache["embedding_sentiment_score"].values
-            sentiment_diffs = np.abs(
-                article_sentiments - query_sentiment
-            )
-            mask = sentiment_diffs <= sentiment_threshold
-            similarities = similarities * mask  # Zero out non-matching sentiment
 
         # Get top-k
         top_indices = np.argsort(similarities)[::-1][:top_k]
@@ -278,13 +233,12 @@ class EmbeddingPipeline:
                 "title": row["title"],
                 "similarity_score": float(similarities[idx]),
                 "primary_label": row.get("primary_label", ""),
-                "secondary_label": row.get("secondary_label", ""),
-                "sentiment": float(row.get("embedding_sentiment_score", 0)),
+                "secondary_label": row.get("secondary_label", "")
+
             }
 
             if show_scores:
                 result["query_sentiment"] = float(query_sentiment)
-                result["sentiment_diff"] = float(abs(row["embedding_sentiment_score"] - query_sentiment))
 
             results.append(result)
 
@@ -304,7 +258,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     pipeline = EmbeddingPipeline(db_path=args.db_path)
-    tables = args.tables or pipeline.select_default_tables(max_tables=2)
+    tables = args.tables
 
     if not tables:
         raise ValueError("No tables found in database. Use --tables to pass table names explicitly.")
