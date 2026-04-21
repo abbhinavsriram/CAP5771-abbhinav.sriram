@@ -36,7 +36,7 @@ async function generate_chart(chart_name, params) {
             chart.html(`<img src="${filepath}" alt="${chart_name}" class="img-fluid">`);
         }
     } catch (error) {
-        chart.innerHTML = "Error: " + error
+        chart.html("Error: " + error)
         console.log("Erred")
         alert(error);
     }
@@ -58,9 +58,11 @@ async function generate_sen_by_len_chart() {
 
 async function generate_sen_by_topic_chart() {
     let topic_choice = $("#topic-choice").val()
+    let table_name = $("#table-name").val()
 
     let params = {
         "topic_choice": topic_choice,
+        "table_name": table_name,
     }
 
     await generate_chart("sen_by_topic", params)
