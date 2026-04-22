@@ -25,51 +25,6 @@ def save_plot(filename, fig=None):
 
     return f"/images/{filename}"
 
-
-# Sentiment Distribution Over Length
-
-def get_sentiment_dist_over_length(table_name, column, date_column, sentiment_threshold=0.0, length_threshold=500000):
-    query = f"""SELECT {column}, IF(roberta_pos_score - roberta_neg_score > {sentiment_threshold}, 'positive', 'negative') sentiment, strftime('%Y-%m', {date_column}) month_released
-                FROM {table_name}
-                WHERE month_released BETWEEN "2021-01" AND "2025-12"
-                ORDER BY month_released, strftime('%m', {date_column});"""
-    conn = connect(DB_FILE)
-
-    df = read_sql(query, conn)
-    df["length"] = df[column].apply(len)
-    df = df[df["length"] < length_threshold]
-    return df
-
-
-def generate_sen_by_len_chart(data, filename="sen_by_len.png"):
-    sentiment_threshold = float(data["params"].get("sentiment_threshold", 0))
-    news_length_threshold = int(data["params"].get("news_length_threshold", 55000))
-    devposts_length_threshold = int(data["params"].get("devposts_length_threshold", 55000))
-
-
-    articles_df = get_sentiment_dist_over_length("modified_articles", "text", date_column="date",
-                                                 sentiment_threshold=sentiment_threshold,
-                                                 length_threshold=news_length_threshold)
-    dp_df = get_sentiment_dist_over_length("DevPosts", "body_text", date_column="published_at",
-                                           sentiment_threshold=sentiment_threshold,
-                                           length_threshold=devposts_length_threshold)
-
-
-    fig, axes = plt.subplots(1, 2, figsize=(9, 5))
-    sns.boxplot(x="sentiment", y='length', data=articles_df, ax=axes[0])
-
-    sns.boxplot(x="sentiment", y='length', data=dp_df, ax=axes[1])
-    for ax in axes:
-        ax.set_xlabel("")
-        ax.set_ylabel("")
-    axes[0].set_title("News Articles Sentiment Distribution by Length")
-    axes[1].set_title("DevPosts Sentiment Distribution by Length")
-    fig.supylabel("Length (chars)")
-    fig.supxlabel("Sentiment")
-
-    save_plot(filename, fig)
-
-
 # Sentiment Distribution over Topic
 
 def get_sent_by_topic(topic_choice, table_name):
@@ -192,8 +147,65 @@ def generate_sent_change_over_time(data, filename="sen_over_time.png"):
     save_plot(filename)
 
 
+# Topic Discussion Amount over Time
+def get_secondary_topic_disc_over_time(included_topics):
+    topics = ["%discussion of AI in geopolitics, international competition, or national security%",
+              "%discussion of AI safety, alignment, or existential risks%",
+              "%discussion of AI's impact on jobs, employment, or the economy%",
+              "%discussion of ethical concerns, bias, or fairness in AI systems%",
+              "%discussion of how AI is portrayed in media or public opinion%",
+              "%discussion of legal, regulatory, or policy issues related to AI%",
+              "%discussion of the environmental impact or energy consumption of AI%"]
+    topic_label = ["AI in geopolitics, international competition, or national security",
+                   "AI safety, alignment, or existential risks",
+                   "AI's impact on jobs, employment, or the economy",
+                   "Ethical concerns, bias, or fairness in AI systems",
+                   "How AI is portrayed in media or public opinion",
+                   "Legal, regulatory, or policy issues related to AI",
+                   "The environmental impact or energy consumption of AI"]
+    colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
+    query = f"""SELECT strftime('%Y-%m', date) month_released,
+    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_0,
+    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_1,
+    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_2,
+    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_3,
+    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_4,
+    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_5,
+    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_6
+                    FROM modified_articles
+                    GROUP BY month_released
+                    HAVING COUNT(*) > 50
+                    ORDER BY month_released;"""
+
+    conn = connect(DB_FILE)
+    df = read_sql(query, conn, params=topics)
+    conn.close()
+
+    df["month_released"] = df["month_released"].apply(lambda x: datetime.strptime(x, "%Y-%m"))
+
+    for i in range(len(topics)):
+        if included_topics[i]:
+            plt.plot(df["month_released"], df[f"topic_{i}"], colors[i], label=topic_label[i])
+
+
+def generate_secondary_topic_disc_over_time(data, filename="sec_news_topic_disc.png"):
+    included_topics = data["params"].get("included_topics", [True, True, True, True, True, True, True])
+
+    plt.figure(figsize=(10, 9))
+
+    get_secondary_topic_disc_over_time(included_topics)
+
+    plt.legend()
+    plt.ylabel("Topic")
+    plt.title("Normalized Topic Change In News Articles over Time")
+    plt.xlabel("Month")
+
+    # plt.xticks(rotation=90)
+    # plt.legend()
+
+    save_plot(filename)
 
 generate_sent_change_over_time({"params": {}}, filename="default_sen_over_time.png")
 generate_sen_by_topic({"params": {}}, filename="default_sentiment_by_topic.png")
-generate_sen_by_len_chart({"params": {}}, filename="default_sentiment_dist_over_length.png")
 generate_topic_disc_over_time({"params": {}}, filename="default_topic_disc_over_time.png")
+generate_secondary_topic_disc_over_time({"params": {}}, filename="default_secondary_topic_disc_over_time.png")

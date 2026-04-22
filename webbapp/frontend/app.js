@@ -43,17 +43,17 @@ async function generate_chart(chart_name, params) {
 }
 
 async function generate_sen_by_len_chart() {
-    let sentiment_threshold = $("#sentiment_threshold").val()
-    let news_length_threshold = $("#news_length_threshold").val()
-    let devposts_length_threshold = $("#devposts_length_threshold").val()
+    let included_topics = []
 
-    let params = {
-        "sentiment_threshold": sentiment_threshold,
-        "news_length_threshold": news_length_threshold,
-        "devposts_length_threshold": devposts_length_threshold
+    for (let i = 0; i <= 6; i++) {
+        included_topics.push($("#topic_" + i).is(":checked"))
     }
 
-    await generate_chart("sen_by_len", params)
+    let params = {
+        "included_topics": included_topics
+    }
+
+    await generate_chart("sec_news_topic_disc", params)
 }
 
 async function generate_sen_by_topic_chart() {

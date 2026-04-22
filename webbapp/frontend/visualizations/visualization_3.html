@@ -54,16 +54,17 @@
           </div>
         </nav>
         <div class="row">
+            <h2>Topic Discussion Over Time</h2>
             <div class="col-lg-4">
                 <div class="form">
                     <label class="form-label" id="output_post_per_month_threshold" for="post_per_month_threshold">Post Per Month: 5</label>
                     <input class="form-range" type="range" id="post_per_month_threshold" name="post_per_month_threshold" min="0" max="100" step="5" value="5" oninput="update_slider_output('post_per_month_threshold', 'Post Per Month Threshold: ')" onchange="generate_topic_disc_over_time_chart()"/>
                 </div>
-                <div id="param_explainer" class="mt-5">
+                <div id="param_explainer" class="mt-3">
                     <ul class="list-group bg-dark text-light">
                         <li class="list-group-item bg-dark text-light">Post Per Month: The minimum number of posts a user must have made in a month to be considered</li>
                     </ul>
-                    <h4 class="mt-3">Topic Mapping</h4>
+                    <h4 class="mt-2">Topic Mapping</h4>
                     <table class="table table-dark">
                         <thead>
                             <tr>
