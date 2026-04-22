@@ -63,7 +63,7 @@
                       <option value="devposts">Developer Posts</option>
                     </select>
 
-                    <label class="form-label" id="output_sentiment_threshold" for="sentiment_threshold">Sentiment Threshold: 0</label>
+                    <label class="form-label mt-2 " id="output_sentiment_threshold" for="sentiment_threshold">Sentiment Threshold: 0</label>
                     <input class="form-range" type="range" id="sentiment_threshold" name="sentiment_threshold" min="-1" max="1" step="0.1" oninput="update_slider_output('sentiment_threshold', 'Sentiment Threshold: ')" onchange="generate_sen_over_time_chart()"/>
 
                     <label class="form-label" id="output_post_per_month_threshold" for="post_per_month_threshold">Post Per Month: 5</label>
@@ -71,6 +71,7 @@
                 </div>
                 <div id="param_explainer" class="mt-5">
                     <ul class="list-group bg-dark text-light">
+                        <li class="list-group-item bg-dark text-light">Table Choice: What tables to pull data from to chart sentiment change over time</li>
                         <li class="list-group-item bg-dark text-light">Sentiment Threshold: The <i>`zero point`</i> for classifying posts based on sentiment score, i.e. score above the threshold are positive, and below are negative</li>
                         <li class="list-group-item bg-dark text-light">Post Per Month: The minimum number of posts a user must have made in a month to be considered</li>
                     </ul>
