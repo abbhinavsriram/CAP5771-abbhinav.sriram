@@ -58,22 +58,21 @@
             <div class="col-lg-6">
                     <div class="form">
                     <label for="table-name">Choose A Table:</label>
-                    <select id="table-name" class="form-control" name="table-name">
+                    <select id="table-name" class="form-control" name="table-name" onchange="generate_sen_by_topic_chart()">
                       <option value="modified_articles">News Articles</option>
                       <option value="devposts">Developer Posts</option>
                     </select>
 
                     <label class="mt-2" for="topic-choice">Choose A Topic:</label>
-                    <select id="topic-choice" class="form-control" name="topic-choice">
+                    <select id="topic-choice" class="form-control" name="topic-choice" onchange="generate_sen_by_topic_chart()">
                       <option value="-1">All</option>
-                      <option value="0">code, software, development</option>
-                      <option value="1">models, model, google</option>
-                      <option value="2">just, like, work</option>
-                      <option value="3">learning, machine, artificial</option>
-                      <option value="4">enterprise, 2025, artificial</option>
+                      <option value="0">Topic 1</option>
+                      <option value="1">Topic 2</option>
+                      <option value="2">Topic 3</option>
+                      <option value="3">Topic 4</option>
+                      <option value="4">Topic 5</option>
                     </select>
 
-                    <button class="btn btn-primary mt-3" id="run_model" onclick="generate_sen_by_topic_chart()">Generate Graph</button>
                 </div>
                 <div id="param_explainer" class="mt-5">
                     <ul class="list-group bg-dark text-light">

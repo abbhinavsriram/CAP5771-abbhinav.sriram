@@ -58,15 +58,13 @@
             <div class="col-lg-4">
                 <div class="form">
                     <label class="form-label" id="output_sentiment_threshold" for="sentiment_threshold">Sentiment Threshold: 0</label>
-                    <input class="form-range" type="range" id="sentiment_threshold" name="sentiment_threshold" min="-1" max="1" step="0.1" oninput="update_slider_output('sentiment_threshold', 'Sentiment Threshold: ')"/>
+                    <input class="form-range" type="range" id="sentiment_threshold" name="sentiment_threshold" min="-1" max="1" step="0.1" oninput="update_slider_output('sentiment_threshold', 'Sentiment Threshold: ')" onchange="generate_sen_by_len_chart()"/>
 
                     <label class="form-label" id="output_news_length_threshold" for="news_length_threshold">News Length Threshold: 55000</label>
-                    <input class="form-range" type="range" id="news_length_threshold" name="news_length_threshold" min="10000" max="100000" step="1000" oninput="update_slider_output('news_length_threshold', 'News Length Threshold: ')"/>
+                    <input class="form-range" type="range" id="news_length_threshold" name="news_length_threshold" min="10000" max="100000" step="1000" oninput="update_slider_output('news_length_threshold', 'News Length Threshold: ')" onchange="generate_sen_by_len_chart()"/>
 
                     <label class="form-label" id="output_devposts_length_threshold" for="devposts_length_threshold">DevPost Length Threshold: 55000</label>
-                    <input class="form-range" type="range" id="devposts_length_threshold" name="devposts_length_threshold" min="10000" max="100000" step="1000" oninput="update_slider_output('devposts_length_threshold', 'DevPost Length Threshold: ')"/>
-
-                    <button class="btn btn-primary" id="run_model" onclick="generate_sen_by_len_chart()">Generate Graph</button>
+                    <input class="form-range" type="range" id="devposts_length_threshold" name="devposts_length_threshold" min="10000" max="100000" step="1000" oninput="update_slider_output('devposts_length_threshold', 'DevPost Length Threshold: ')" onchange="generate_sen_by_len_chart()"/>
                 </div>
                 <div id="param_explainer" class="mt-5">
                     <ul class="list-group bg-dark text-light">

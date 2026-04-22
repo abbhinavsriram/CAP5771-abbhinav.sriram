@@ -81,11 +81,13 @@ async function generate_topic_disc_over_time_chart() {
 async function generate_sen_over_time_chart() {
     let post_per_month_threshold = $("#post_per_month_threshold").val()
     let sentiment_threshold = $("#sentiment_threshold").val()
+    let table_choice = $("#table-choice").val()
 
 
     let params = {
         "sentiment_threshold": sentiment_threshold,
-        "post_per_month_threshold": post_per_month_threshold
+        "post_per_month_threshold": post_per_month_threshold,
+        "table_choice": table_choice,
     }
 
     await generate_chart("sen_over_time", params)

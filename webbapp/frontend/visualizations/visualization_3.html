@@ -57,10 +57,7 @@
             <div class="col-lg-4">
                 <div class="form">
                     <label class="form-label" id="output_post_per_month_threshold" for="post_per_month_threshold">Post Per Month: 5</label>
-                    <input class="form-range" type="range" id="post_per_month_threshold" name="post_per_month_threshold" min="0" max="100" step="5" value="5" oninput="update_slider_output('post_per_month_threshold', 'Post Per Month Threshold: ')"/>
-
-
-                    <button class="btn btn-primary" id="run_model" onclick="generate_topic_disc_over_time_chart()">Generate Graph</button>
+                    <input class="form-range" type="range" id="post_per_month_threshold" name="post_per_month_threshold" min="0" max="100" step="5" value="5" oninput="update_slider_output('post_per_month_threshold', 'Post Per Month Threshold: ')" onchange="generate_topic_disc_over_time_chart()"/>
                 </div>
                 <div id="param_explainer" class="mt-5">
                     <ul class="list-group bg-dark text-light">
@@ -97,7 +94,7 @@
                                 <td>learning, machine, artificial</td>
                             </tr>
                             <tr>
-                                <th scope="row">4</th>
+                                <th scope="row">5</th>
                                 <td>google, openai, company</td>
                                 <td>enterprise, 2025, artificial</td>
                             </tr>
