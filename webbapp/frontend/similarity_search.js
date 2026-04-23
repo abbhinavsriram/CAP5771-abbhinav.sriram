@@ -57,7 +57,7 @@ async function search_similar_articles() {
 
         const results = await response.json();
 
-        if (!results || results.length === 0) {
+        if (!results || (!results.news || results.news.length === 0) && (!results.devpost || results.devpost.length === 0)) {
             show_no_results();
         } else {
             display_results(results);
@@ -73,29 +73,80 @@ async function search_similar_articles() {
 
 function display_results(results) {
     const resultsContainer = $("#results-container");
-    const resultsList = $("#results-list");
+    const querySummary = $("#query-summary");
+    const newsSection = $("#news-results-section");
+    const devpostSection = $("#devpost-results-section");
+    const newsResultsList = $("#news-results-list");
+    const devpostResultsList = $("#devpost-results-list");
 
-    resultsList.empty();
+    querySummary.empty().hide();
+    newsResultsList.empty();
+    devpostResultsList.empty();
 
-    results.forEach((result, index) => {
-        const card = create_result_card(result, index + 1);
-        resultsList.append(card);
-    });
+    if (results.query_sentiment) {
+        querySummary.html(create_query_summary(results.query_sentiment)).show();
+    }
+
+    if (results.news && results.news.length > 0) {
+        results.news.forEach((result, index) => {
+            newsResultsList.append(create_result_card(result, index + 1, "news"));
+        });
+        newsSection.show();
+    } else {
+        newsSection.hide();
+    }
+
+    if (results.devpost && results.devpost.length > 0) {
+        results.devpost.forEach((result, index) => {
+            devpostResultsList.append(create_result_card(result, index + 1, "devpost"));
+        });
+        devpostSection.show();
+    } else {
+        devpostSection.hide();
+    }
 
     resultsContainer.show();
 }
 
-function create_result_card(result, rank) {
-    const sentimentClass = get_sentiment_class(result.sentiment);
-    const sentimentText = get_sentiment_text(result.sentiment);
+function create_query_summary(querySentiment) {
+    const sentimentValue = typeof querySentiment.tb_polarity === "number" ? querySentiment.tb_polarity : 0;
+    const sentimentClass = get_sentiment_class(sentimentValue);
+    const sentimentText = get_sentiment_text(sentimentValue);
+    const subjectivity = typeof querySentiment.tb_subjectivity === "number" ? querySentiment.tb_subjectivity : 0;
+    const label = querySentiment.tb_sentiment || "neutral";
+
+    return `
+        <div class="result-card">
+            <div class="result-title">Query Sentiment</div>
+            <div class="result-labels">
+                <span class="sentiment-badge ${sentimentClass}">${sentimentText}</span>
+            </div>
+            <div class="result-meta">
+                <span><strong>Polarity:</strong> ${(sentimentValue * 100).toFixed(1)}%</span>
+                <span><strong>Subjectivity:</strong> ${(subjectivity * 100).toFixed(1)}%</span>
+                <span><strong>Label:</strong> ${escape_html(String(label))}</span>
+            </div>
+        </div>
+    `;
+}
+
+function create_result_card(result, rank, resultType) {
+    const sentimentValue = typeof result.tb_polarity === "number" ? result.tb_polarity : 0;
+    const sentimentClass = get_sentiment_class(sentimentValue);
+    const sentimentText = get_sentiment_text(sentimentValue);
+    const polarity = typeof result.tb_polarity === "number" ? result.tb_polarity : 0;
+    const subjectivity = typeof result.tb_subjectivity === "number" ? result.tb_subjectivity : 0;
 
     let labelsHtml = "";
-    if (result.primary_label) {
-        labelsHtml += `<span class="label-badge label-primary">${result.primary_label}</span>`;
+    if (result.dominant_topic !== undefined && result.dominant_topic !== null && result.dominant_topic !== "") {
+        labelsHtml += `<span class="label-badge label-primary">Topic ${escape_html(String(result.dominant_topic))}</span>`;
     }
     if (result.secondary_label) {
-        labelsHtml += `<span class="label-badge label-secondary">${result.secondary_label}</span>`;
+        labelsHtml += `<span class="label-badge label-secondary">${escape_html(String(result.secondary_label))}</span>`;
     }
+
+    const scoreLabel = resultType === "news" ? "News Match" : "Developer Match";
+    const sectionLabel = resultType === "news" ? "News" : "Developer";
 
     const card = `
         <div class="result-card">
@@ -104,15 +155,16 @@ function create_result_card(result, rank) {
                 <div class="result-content">
                     <div class="result-title">${escape_html(result.title)}</div>
                     <div class="result-score">
-                        ✓ ${(result.similarity_score * 100).toFixed(1)}% Match
+                        ✓ ${scoreLabel}: ${(result.similarity_score * 100).toFixed(1)}%
                     </div>
                     <div class="result-labels">
                         ${labelsHtml}
                         <span class="sentiment-badge ${sentimentClass}">${sentimentText}</span>
                     </div>
                     <div class="result-meta">
-                        <span><strong>Sentiment Score:</strong> ${(result.sentiment * 100).toFixed(1)}%</span>
-                        <span><strong>ID:</strong> ${result.id}</span>
+                        <span><strong>Polarity:</strong> ${(polarity * 100).toFixed(1)}%</span>
+                        <span><strong>${sectionLabel} Sentiment:</strong> ${(sentimentValue * 100).toFixed(1)}%</span>
+                        <span><strong>Subjectivity:</strong> ${(subjectivity * 100).toFixed(1)}%</span>
                     </div>
                 </div>
             </div>
@@ -134,11 +186,11 @@ function get_sentiment_class(sentiment) {
 
 function get_sentiment_text(sentiment) {
     if (sentiment >= 0.05) {
-        return "😊 Positive";
+        return "Positive";
     } else if (sentiment <= -0.05) {
-        return "😞 Negative";
+        return "Negative";
     } else {
-        return "😐 Neutral";
+        return "Neutral";
     }
 }
 
@@ -150,18 +202,18 @@ function escape_html(text) {
         '"': '&quot;',
         "'": '&#039;'
     };
-    return text.replace(/[&<>"']/g, m => map[m]);
+    return String(text).replace(/[&<>"']/g, m => map[m]);
 }
 
 function show_loading() {
     $("#loading").show();
-    $("#search-text").text("🔄 Searching...");
+    $("#search-text").text("Searching...");
     $(".btn-search").prop("disabled", true);
 }
 
 function hide_loading() {
     $("#loading").hide();
-    $("#search-text").text("🔎 Find Similar Articles");
+    $("#search-text").text("Find Similar Articles");
     $(".btn-search").prop("disabled", false);
 }
 
@@ -177,11 +229,15 @@ function hide_error() {
 function show_no_results() {
     $("#no-results").show();
     $("#results-container").hide();
+    $("#query-summary").hide();
 }
 
 function hide_results() {
     $("#results-container").hide();
     $("#no-results").hide();
+    $("#query-summary").hide();
+    $("#news-results-section").hide();
+    $("#devpost-results-section").hide();
 }
 
 // Allow Enter key to trigger search (Ctrl+Enter or Cmd+Enter)
