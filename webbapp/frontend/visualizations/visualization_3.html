@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="apple-touch-icon" sizes="180x180" href="../favicon_io/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon_io/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../favicon_io/favicon-16x16.png">
+    <link rel="manifest" href="../favicon_io/site.webmanifest">
+    <title>Article Analysis</title>
+    <script src="/app.js"></script>
+    <style>
+        .loader {
+          border: 16px solid #f3f3f3; /* Light grey */
+              border-top: 16px solid #3498db; /* Blue */
+              border-radius: 50%;
+              width: 60px;
+              height: 60px;
+              animation: spin 2s linear infinite;
+            }
+
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+        }
+    </style>
+
+    <!--JQuery-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <!--Bootstrap-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+<body class="bg-dark text-light">
+    <div class="container-fluid px-5">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <a class="navbar-brand" href="/">Article Analysis</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../visualizations/visualization_1.html">Visualization 1</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../visualizations/visualization_2.html">Visualization 2</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="../visualizations/visualization_3.html">Visualization 3</a>
+                    </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/visualizations/visualization_4.html">Visualization 4</a>
+                  </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/visualizations/visualization_5.html">Similarity Search</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="row">
+            <h2>Topic Discussion Over Time</h2>
+            <div class="col-lg-5">
+                <div class="form">
+                    <label class="form-label" id="output_post_per_month_threshold" for="post_per_month_threshold">Post Per Month: 5</label>
+                    <input class="form-range" type="range" id="post_per_month_threshold" name="post_per_month_threshold" min="0" max="100" step="5" value="5" oninput="update_slider_output('post_per_month_threshold', 'Post Per Month Threshold: ')" onchange="generate_topic_disc_over_time_chart()"/>
+                </div>
+                <div id="param_explainer" class="mt-3">
+                    <ul class="list-group bg-dark text-light">
+                        <li class="list-group-item bg-dark text-light">Post Per Month: The minimum number of posts a user must have made in a month to be considered</li>
+                    </ul>
+                    <h4 class="mt-2">Topic Mapping</h4>
+                    <table class="table table-dark">
+                        <thead>
+                            <tr>
+                                <th scope="col">Topic #</th>
+                                <th scope="col">News Articles</th>
+                                <th scope="col">Developer Posts</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">1</th>
+                                <td>jobs, workers, employees</td>
+                                <td>code, engineering, development</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">2</th>
+                                <td>data, security, cybersecurity</td>
+                                <td>openai, models, google</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">3</th>
+                                <td>generative, language, models</td>
+                                <td>tools, time, work</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">4</th>
+                                <td>tech, industry, world</td>
+                                <td>ml, algorithms, artificial</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">5</th>
+                                <td>google, openai, microsoft</td>
+                                <td>enterprise, companies, business</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">6</th>
+                                <td>business, companies, services</td>
+                                <td>customer, automation, chatbots</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">7</th>
+                                <td>people, think, human</td>
+                                <td>financial, healthcare, predictive</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">8</th>
+                                <td>government, president, china</td>
+                                <td>agentic, autonomous, workflows</td>
+                            </tr>
+                        </tbody>
+                        </table>
+                </div>
+            </div>
+            <div id="topic_disc_over_time" class="col-lg-7 align-self-center align-items-center px-5">
+                <img src="../images/default_topic_disc_over_time.png?t=213435" alt="Placeholder Image" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</body>
+</html>

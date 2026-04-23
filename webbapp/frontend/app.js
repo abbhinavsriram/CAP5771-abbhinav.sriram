@@ -1,0 +1,94 @@
+function update_slider_output(slider_id, output_prefix) {
+    let slider = $("#" + slider_id);
+    let output = $("#output_" + slider_id);
+    output.html(output_prefix + slider.val());
+}
+
+async function generate_chart(chart_name, params) {
+    let chart = $("#" + chart_name)
+    console.log("Got object " + chart)
+    let body = JSON.stringify({
+        "chart": chart_name,
+        "params": params,
+    })
+
+    let url = "http://127.0.0.1:5001/generate_chart";
+    console.log("Sending request to " + url)
+    console.log("With body: " + body)
+    let request = {
+                    method: "POST",
+                    credentials: "include",
+                    mode: "cors",
+                    body: body,
+                    headers: {"content-type": "application/json"}
+                };
+
+    try {
+        chart.html("<div class=\"loader\"></div>\n")
+        const response = await fetch(url, request);
+        if (!response.ok) {
+            alert(`Response status: ${response.status}`);
+        } else {
+            let response_json = await response.json();
+            let filepath = `/images/${chart_name}.png?t=${new Date().getTime()}`
+
+            console.log("Response: " + filepath)
+            chart.html(`<img src="${filepath}" alt="${chart_name}" class="img-fluid">`);
+        }
+    } catch (error) {
+        chart.html("Error: " + error)
+        console.log("Erred")
+        alert(error);
+    }
+}
+
+async function generate_sen_by_len_chart() {
+    let included_topics = []
+
+    for (let i = 0; i <= 6; i++) {
+        included_topics.push($("#topic_" + i).is(":checked"))
+    }
+
+    let params = {
+        "included_topics": included_topics
+    }
+
+    await generate_chart("sec_news_topic_disc", params)
+}
+
+async function generate_sen_by_topic_chart() {
+    let topic_choice = $("#topic-choice").val()
+    let table_name = $("#table-name").val()
+
+    let params = {
+        "topic_choice": topic_choice,
+        "table_name": table_name,
+    }
+
+    await generate_chart("sen_by_topic", params)
+}
+
+async function generate_topic_disc_over_time_chart() {
+    let post_per_month_threshold = $("#post_per_month_threshold").val()
+
+    let params = {
+        "post_per_month_threshold": post_per_month_threshold,
+    }
+
+    await generate_chart("topic_disc_over_time", params)
+}
+
+async function generate_sen_over_time_chart() {
+    let post_per_month_threshold = $("#post_per_month_threshold").val()
+    let sentiment_threshold = $("#sentiment_threshold").val()
+    let table_choice = $("#table-choice").val()
+
+
+    let params = {
+        "sentiment_threshold": sentiment_threshold,
+        "post_per_month_threshold": post_per_month_threshold,
+        "table_choice": table_choice,
+    }
+
+    await generate_chart("sen_over_time", params)
+}

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="apple-touch-icon" sizes="180x180" href="../favicon_io/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon_io/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../favicon_io/favicon-16x16.png">
+    <link rel="manifest" href="../favicon_io/site.webmanifest">
+    <title>Article Analysis</title>
+    <script src="/app.js"></script>
+    <style>
+        .loader {
+          border: 16px solid #f3f3f3; /* Light grey */
+              border-top: 16px solid #3498db; /* Blue */
+              border-radius: 50%;
+              width: 60px;
+              height: 60px;
+              animation: spin 2s linear infinite;
+            }
+
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+        }
+    </style>
+
+    <!--JQuery-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <!--Bootstrap-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+<body class="bg-dark text-light">
+    <div class="container-fluid px-5">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <a class="navbar-brand" href="/">Article Analysis</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../visualizations/visualization_1.html">Visualization 1</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="../visualizations/visualization_2.html">Visualization 2</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../visualizations/visualization_3.html">Visualization 3</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="/visualizations/visualization_4.html">Visualization 4</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/visualizations/visualization_5.html">Similarity Search</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="row">
+            <h2>Sentiment Analysis by Topic</h2>
+            <div class="col-lg-6">
+                    <div class="form">
+                    <label for="table-name">Choose A Table:</label>
+                    <select id="table-name" class="form-control" name="table-name" onchange="generate_sen_by_topic_chart()">
+                      <option value="modified_articles">News Articles</option>
+                      <option value="devposts">Developer Posts</option>
+                    </select>
+
+                    <label class="mt-2" for="topic-choice">Choose A Topic:</label>
+                    <select id="topic-choice" class="form-control" name="topic-choice" onchange="generate_sen_by_topic_chart()">
+                      <option value="-1">All</option>
+                      <option value="0">Topic 1</option>
+                      <option value="1">Topic 2</option>
+                      <option value="2">Topic 3</option>
+                      <option value="3">Topic 4</option>
+                      <option value="4">Topic 5</option>
+                      <option value="5">Topic 6</option>
+                      <option value="6">Topic 7</option>
+                      <option value="7">Topic 8</option>
+                    </select>
+
+                </div>
+                <div id="param_explainer" class="mt-4">
+                    <ul class="list-group bg-dark text-light">
+                        <li class="list-group-item bg-dark text-light">Topic Choice: What topics to filter the DevPosts by, to analyze the sentiment distribution</li>
+                    </ul>
+                    <h4 class="mt-3">Topic Mapping</h4>
+                    <table class="table table-dark">
+                        <thead>
+                            <tr>
+                                <th scope="col">Topic #</th>
+                                <th scope="col">News Articles</th>
+                                <th scope="col">Developer Posts</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">1</th>
+                                <td>jobs, workers, employees</td>
+                                <td>code, engineering, development</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">2</th>
+                                <td>data, security, cybersecurity</td>
+                                <td>openai, models, google</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">3</th>
+                                <td>generative, language, models</td>
+                                <td>tools, time, work</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">4</th>
+                                <td>tech, industry, world</td>
+                                <td>ml, algorithms, artificial</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">5</th>
+                                <td>google, openai, microsoft</td>
+                                <td>enterprise, companies, business</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">6</th>
+                                <td>business, companies, services</td>
+                                <td>customer, automation, chatbots</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">7</th>
+                                <td>people, think, human</td>
+                                <td>financial, healthcare, predictive</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">8</th>
+                                <td>government, president, china</td>
+                                <td>agentic, autonomous, workflows</td>
+                            </tr>
+                        </tbody>
+                        </table>
+                </div>
+            </div>
+            <div id="sen_by_topic" class="col-lg-6 align-self-center align-items-center">
+                <img src="../images/default_sentiment_by_topic.png?t=213435" alt="Placeholder Image" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</body>
+</html>
