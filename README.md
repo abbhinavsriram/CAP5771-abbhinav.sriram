@@ -15,22 +15,51 @@ pip install -r requirements.txt
 
 All of our data is stored in the SQLite file **db.sqlite**. This file isn't including in the repo since it is too large, instead you can generate it yourself by running the code in `generate_db.py`.
 
+
+### Data pipeline code files
 **Developer Posts code files:**
 
 We initially wrote the DEV API extraction and exploration code in two separate Jupyter notebooks (stored in the /dev_notebooks folder). However, to keep in line with assignment specifications, we transferred the code to two separate .py files (though we recommend looking at the ipynb files since they contain outputs and extra notes)
 
 * /dev_notebooks
-  * get_dev_posts.ipynb is the code used to extract the developer posts about AI
-  * dev_data_exploration.ipynb is the code used to do basic data exploration of these articles (post times, key words used, word count)
-  * dev_ai_articles_full.sqlite is the file I initially stored the DEV API articles on (since Aelly and I were working on independent datasets, we didn't want to have a potential overwriting issue, so we maintained independent databases and combined them into db.sqlite later). Leaving this here for documentation purposes and so that the code can work during testing
+  * get_dev_posts.ipynb is the code used to extract DEV.TO postys
+  * get_hashnode_articles.ipynb: Code to extract developer posts from Hashnode
+  * dev_data_exploration.ipynb is the code used to do basic data exploration of DEV.TO articles (post times, key words used, word count)
+  * hashnode_data_exploration.ipynb is the same as above but for hashnode data extraction
 * py files (for assignment specification)
   * get_dev_posts.py
   * dev_data_exploration.py
 
-News Articles code files:
+
+**News Articles code files:** 
 * get_news_articles.py is the code used to get news articles from the infini-news-corpus dataset, combine all the news data into a SQL table, and view the frequency of articles per month
 
 * combine_sqlite_dbs.py is the code used to combine the two SQLite databases into one. This was only needed during development. the current db.sqlite file should already include all the necessary data
+
+
+### Clustering and sentiment analysis notebooks
+**clustering**
+* /dev_notebooks
+  * clustering.ipynb: Main clustering and classification pipeline for developer articles
+  * news_clustering.ipynb: Same as above but for news articles
+**Sentiment Analysis**
+* /dev_notebooks
+  * sentiment_analysis.ipynb: Sentiment Analysis for developer articles
+  * news_sentiment_analysis: Same as above but for news
+
+(The other files are kept to show our full process, but they are mainly experimental)
+
+
+### Web app 
+* /webbapp
+  * /backend
+    * backend.py: Flask app
+    * charting_functions.py: Backend for visualizations 1-4
+    * similarity_search.py: Backend for similarity search functionality
+  * /frontend
+    * similarity_search.js: JavaScript logic that receives python output and turns into frontend element
+    * visualization_1-5.html: HTML frontend
+
 
 ### Running Files
 All the data has already been acquired and is in the repo. Since running the data acquisition code takes multiple days, we advise you to run `combine_sqlite_dbs`, which will automatically generate the `db.sqlite` file

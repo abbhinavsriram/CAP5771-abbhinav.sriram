@@ -39,6 +39,13 @@ def app_js():
         js = f.read()
     return js
 
+
+@app.route('/similarity_search.js', methods=['GET'])
+def similarity_search_js():
+    with open(f"../frontend/similarity_search.js", "r", encoding="utf-8") as f:
+        js = f.read()
+    return js
+
 @app.route('/visualizations/<path:filename>', methods=['GET'])
 def visualizations(filename):
     with open(f"../frontend/visualizations/{filename}", "r", encoding="utf-8") as f:
