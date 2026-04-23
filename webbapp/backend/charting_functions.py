@@ -193,13 +193,13 @@ def get_secondary_topic_disc_over_time(included_topics):
                    "The environmental impact or energy consumption of AI"]
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
     query = f"""SELECT strftime('%Y-%m', date) month_released,
-    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_0,
-    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_1,
-    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_2,
-    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_3,
-    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_4,
-    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_5,
-    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_6
+    SUM(IIF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_0,
+    SUM(IIF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_1,
+    SUM(IIF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_2,
+    SUM(IIF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_3,
+    SUM(IIF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_4,
+    SUM(IIF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_5,
+    SUM(IIF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_6
                     FROM modified_articles
                     GROUP BY month_released
                     HAVING COUNT(*) > 50
