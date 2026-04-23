@@ -6,26 +6,26 @@ from datetime import datetime
 
 DB_FILE = "../../db.sqlite"
 NEWS_TOPIC_LIST = [
-    "jobs, workers, employees",
+    "people, think, human",
+    "business, companies, services",
+    "government, president, china",
+    "google, openai, microsoft",
     "data, security, cybersecurity",
     "generative, language, models",
+    "jobs, workers, employees",
     "tech, industry, world",
-    "google, openai, microsoft",
-    "business, companies, services",
-    "people, think, human",
-    "government, president, china"
 ]
 
 
 DP_TOPIC_LIST = [
-    "code, engineering, development",
+    "financial, healthcare, predictive",
+    "customer, automation, chatbots",
+    "agentic, autonomous, workflows",
+    "enterprise, companies, business",
     "openai, models, google",
     "tools, time, work",
+    "code, engineering, development",
     "ml, algorithms, artificial",
-    "enterprise, companies, business",
-    "customer, automation, chatbots",
-    "financial, healthcare, predictive",
-    "agentic, autonomous, workflows"
 ]
 
 
@@ -135,11 +135,10 @@ def generate_topic_disc_over_time(data, filename="topic_disc_over_time.png"):
     save_plot(filename, fig)
 
 
-# Get sentiment over month
-def get_sentiment_change_over_months(table_name, column, sentiment_threshold=0.0, post_per_month_threshold=5):
+def get_sentiment_change_over_months(plot, table_name, column, sentiment_threshold=0.0, post_per_month_threshold=5):
     query = f"""SELECT strftime('%Y-%m', {column}) AS month_released,
-    SUM(IIF(roberta_pos_score - roberta_neg_score > {sentiment_threshold}, 1, 0)) * 100.0 / count(*) positive,
-    SUM(IIF(roberta_pos_score - roberta_neg_score < -1 * {sentiment_threshold}, 1, 0)) * 100.0 / count(*) negative
+                    SUM(IIF(roberta_pos_score - roberta_neg_score > {sentiment_threshold}, 1, 0)) * 100.0 / count(*) positive,
+                    SUM(IIF(roberta_pos_score - roberta_neg_score < -1 * {sentiment_threshold}, 1, 0)) * 100.0 / count(*) negative
                 FROM {table_name}
                 WHERE month_released BETWEEN "2021-01" AND "2025-12"
                 GROUP BY month_released
@@ -150,29 +149,46 @@ def get_sentiment_change_over_months(table_name, column, sentiment_threshold=0.0
     df = read_sql(query, conn)
     conn.close()
     df["month_released"] = df["month_released"].apply(lambda x: datetime.strptime(x, "%Y-%m"))
-    return df
+    df["neutral"] = 100 - df["positive"] - df["negative"]
+    plot.plot(df["month_released"], df["positive"], "g", label="Positive")
+    plot.plot(df["month_released"], df["negative"], "b", label="Negative")
+    plot.plot(df["month_released"], df["neutral"], "r", label="Neutral")
+    plot.legend()
+
 
 def generate_sent_change_over_time(data, filename="sen_over_time.png"):
     sentiment_threshold = data["params"].get("sentiment_threshold", 0)
     post_per_month_threshold = data["params"].get("post_per_month_threshold", 5)
     table_choice = data["params"].get("table_choice", "both")
 
-    if table_choice == "both" or table_choice == "modified_articles":
-        articles_df = get_sentiment_change_over_months("modified_articles", "date", sentiment_threshold=sentiment_threshold, post_per_month_threshold=post_per_month_threshold)
-        plt.plot(articles_df["month_released"], articles_df["positive"], linestyle=(0, (5, 5)), color="b", label="Positive News Articles")
-        plt.plot(articles_df["month_released"], articles_df["negative"], linestyle=(0, (5, 5)), color="tab:orange", label="Negative News Articles")
+    if table_choice == "both":
+        fig, axes = plt.subplots(2, 1, figsize=(9, 8))
 
-    if table_choice == "both" or table_choice == "devposts":
-        dp_df = get_sentiment_change_over_months("DevPosts", "published_at", sentiment_threshold=sentiment_threshold, post_per_month_threshold=post_per_month_threshold)
-        plt.plot(dp_df["month_released"], dp_df["positive"], "r", linestyle=(0, (1, 1)), label="Positive Dev Posts")
-        plt.plot(dp_df["month_released"], dp_df["negative"], "g", linestyle=(0, (1, 1)), label="Negative Dev Posts")
+        get_sentiment_change_over_months(axes[0], "modified_articles", "date", sentiment_threshold=sentiment_threshold, post_per_month_threshold=post_per_month_threshold)
+        get_sentiment_change_over_months(axes[1], "devposts", "published_at", sentiment_threshold=sentiment_threshold, post_per_month_threshold=post_per_month_threshold)
+        axes[0].set_title("News Articles")
+        axes[1].set_title("Developer Posts")
+        for ax in axes:
+            ax.set_xlabel("")
+            ax.set_ylabel("")
+        fig.supylabel("Sentiment %")
+        fig.suptitle("Sentiment Change over Years")
+        fig.supxlabel("Year")
+        save_plot(filename, fig)
 
-    plt.xlabel("Year")
-    plt.ylabel("Sentiment %")
-    plt.title("Sentiment Change over Year")
-    plt.xticks(rotation=90)
-    plt.legend()
-    save_plot(filename)
+    else:
+        if table_choice == "modified_articles":
+            get_sentiment_change_over_months(plt, "modified_articles", "date", sentiment_threshold=sentiment_threshold, post_per_month_threshold=post_per_month_threshold)
+            plt.title("News Articles Sentiment Change over Years")
+        else:
+            get_sentiment_change_over_months(plt, "devposts", "published_at", sentiment_threshold=sentiment_threshold, post_per_month_threshold=post_per_month_threshold)
+            plt.title("Developer Posts Sentiment Change over Years")
+
+        plt.xlabel("Year")
+        plt.ylabel("Sentiment %")
+        plt.xticks(rotation=90)
+        plt.legend()
+        save_plot(filename)
 
 
 # Topic Discussion Amount over Time
