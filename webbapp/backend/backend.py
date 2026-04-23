@@ -29,20 +29,20 @@ chart_dict = {
 
 @app.route('/', methods=['GET'])
 def default():
-    with open("../frontend/index.html", "r") as f:
+    with open("../frontend/index.html", "r", encoding="utf-8") as f:
         html_content = f.read()
 
     return html_content
 
 @app.route('/app.js', methods=['GET'])
 def app_js():
-    with open(f"../frontend/app.js", "r") as f:
+    with open(f"../frontend/app.js", "r", encoding="utf-8") as f:
         js = f.read()
     return js
 
 @app.route('/visualizations/<path:filename>', methods=['GET'])
 def visualizations(filename):
-    with open(f"../frontend/visualizations/{filename}", "r") as f:
+    with open(f"../frontend/visualizations/{filename}", "r", encoding="utf-8") as f:
         html_content = f.read()
 
     return html_content
@@ -106,8 +106,7 @@ def find_similar():
     try:
         data = request.get_json()
         text = data.get('text', '').strip()
-        top_k = data.get('top_k', 10)
-        sentiment_threshold = data.get('sentiment_threshold', 0.3)
+        top_k = data.get('top_k', 3)
 
         if not text:
             return jsonify({'error': 'No text provided'}), 400
@@ -116,7 +115,6 @@ def find_similar():
         results = pipeline.find_similar(
             text,
             top_k=top_k,
-            sentiment_threshold=sentiment_threshold,
             show_scores=True
         )
 

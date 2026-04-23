@@ -29,13 +29,19 @@ def save_plot(filename, fig=None):
 # Sentiment Distribution Over Length
 
 def get_sentiment_dist_over_length(table_name, column, date_column, sentiment_threshold=0.0, length_threshold=500000):
-    query = f"""SELECT {column}, IF(roberta_pos_score - roberta_neg_score > {sentiment_threshold}, 'positive', 'negative') sentiment, strftime('%Y-%m', {date_column}) month_released
+    query = f"""SELECT {column},
+                CASE
+                    WHEN roberta_pos_score - roberta_neg_score > {sentiment_threshold} THEN 'positive'
+                    ELSE 'negative'
+                END sentiment,
+                strftime('%Y-%m', {date_column}) month_released
                 FROM {table_name}
-                WHERE month_released BETWEEN "2021-01" AND "2025-12"
+                WHERE strftime('%Y-%m', {date_column}) BETWEEN "2021-01" AND "2025-12"
                 ORDER BY month_released, strftime('%m', {date_column});"""
     conn = connect(DB_FILE)
 
     df = read_sql(query, conn)
+    conn.close()
     df["length"] = df[column].apply(len)
     df = df[df["length"] < length_threshold]
     return df
@@ -73,8 +79,8 @@ def generate_sen_by_len_chart(data, filename="sen_by_len.png"):
 # Sentiment Distribution over Topic
 
 def get_sent_by_topic(topic_choice, table_name):
-    query = f"""SELECT SUM(IF(roberta_pos_score - roberta_neg_score >= 0, 1, 0)) * 100 / count(*) positive,
-            SUM(IF(roberta_pos_score - roberta_neg_score <= 0, 1, 0)) * 100 / count(*) negative
+    query = f"""SELECT SUM(CASE WHEN roberta_pos_score - roberta_neg_score >= 0 THEN 1 ELSE 0 END) * 100.0 / count(*) positive,
+        SUM(CASE WHEN roberta_pos_score - roberta_neg_score <= 0 THEN 1 ELSE 0 END) * 100.0 / count(*) negative
                     FROM {table_name}
                     WHERE dominant_topic {'=' if topic_choice != -1 else '!='} {topic_choice}
                     GROUP BY dominant_topic;"""
@@ -110,11 +116,11 @@ def generate_sen_by_topic(data, filename="sen_by_topic.png"):
 # Topic Discussion Amount over Time
 def get_topic_disc_over_time(post_per_month_threshold, table_name, date_column):
     query = f"""SELECT strftime('%Y-%m', {date_column}) month_released,
-    SUM(IF(dominant_topic = 0, 1, 0)) * 100 / count(*) topic_0,
-    SUM(IF(dominant_topic = 1, 1, 0)) * 100 / count(*) topic_1,
-    SUM(IF(dominant_topic = 2, 1, 0)) * 100 / count(*) topic_2,
-    SUM(IF(dominant_topic = 3, 1, 0)) * 100 / count(*) topic_3,
-    SUM(IF(dominant_topic = 4, 1, 0)) * 100 / count(*) topic_4
+    SUM(CASE WHEN dominant_topic = 0 THEN 1 ELSE 0 END) * 100.0 / count(*) topic_0,
+    SUM(CASE WHEN dominant_topic = 1 THEN 1 ELSE 0 END) * 100.0 / count(*) topic_1,
+    SUM(CASE WHEN dominant_topic = 2 THEN 1 ELSE 0 END) * 100.0 / count(*) topic_2,
+    SUM(CASE WHEN dominant_topic = 3 THEN 1 ELSE 0 END) * 100.0 / count(*) topic_3,
+    SUM(CASE WHEN dominant_topic = 4 THEN 1 ELSE 0 END) * 100.0 / count(*) topic_4
                     FROM {table_name}
                     where {date_column} < "2025-12-01"
                     GROUP BY month_released
@@ -149,16 +155,17 @@ def generate_topic_disc_over_time(data, filename="topic_disc_over_time.png"):
 # Get sentiment over month
 def get_sentiment_change_over_months(table_name, column, sentiment_threshold=0, post_per_month_threshold=5):
     query = f"""SELECT strftime('%Y-%m', {column}) month_released,
-    SUM(IF(roberta_pos_score - roberta_neg_score >= {sentiment_threshold}, 1, 0)) * 100 / count(*) positive,
-    SUM(IF(roberta_pos_score - roberta_neg_score <= -{sentiment_threshold}, 1, 0)) * 100 / count(*) negative
+    SUM(CASE WHEN roberta_pos_score - roberta_neg_score >= {sentiment_threshold} THEN 1 ELSE 0 END) * 100.0 / count(*) positive,
+    SUM(CASE WHEN roberta_pos_score - roberta_neg_score <= -{sentiment_threshold} THEN 1 ELSE 0 END) * 100.0 / count(*) negative
                 FROM {table_name}
-                WHERE month_released BETWEEN "2021-01" AND "2025-12"
+                WHERE strftime('%Y-%m', {column}) BETWEEN "2021-01" AND "2025-12"
                 GROUP BY month_released
                 HAVING COUNT(*) > {post_per_month_threshold}
                 ORDER BY month_released;"""
     conn = connect(DB_FILE)
 
     df = read_sql(query, conn)
+    conn.close()
     df["month_released"] = df["month_released"].apply(lambda x: datetime.strptime(x, "%Y-%m"))
     return df
 
@@ -181,7 +188,8 @@ def generate_sent_change_over_time(data, filename="sen_over_time.png"):
 
 
 
-generate_sent_change_over_time({"params": {}}, filename="default_sen_over_time.png")
-generate_sen_by_topic({"params": {}}, filename="default_sentiment_by_topic.png")
-generate_sen_by_len_chart({"params": {}}, filename="default_sentiment_dist_over_length.png")
-generate_topic_disc_over_time({"params": {}}, filename="default_topic_disc_over_time.png")
+if __name__ == "__main__":
+    generate_sent_change_over_time({"params": {}}, filename="default_sen_over_time.png")
+    generate_sen_by_topic({"params": {}}, filename="default_sentiment_by_topic.png")
+    generate_sen_by_len_chart({"params": {}}, filename="default_sentiment_dist_over_length.png")
+    generate_topic_disc_over_time({"params": {}}, filename="default_topic_disc_over_time.png")

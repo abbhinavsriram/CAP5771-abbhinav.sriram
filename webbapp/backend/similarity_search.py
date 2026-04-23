@@ -7,7 +7,7 @@ import base64
 from tqdm import tqdm
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from textblob import TextBlob
 
 
 class EmbeddingPipeline:
@@ -16,9 +16,42 @@ class EmbeddingPipeline:
         self.db_path = db_path
         self.model_name = model_name
         self.model = None
-        self.embeddings_cache = None
-        self.articles_cache = None
-        self.sentiment_analyzer = SentimentIntensityAnalyzer()
+        self.news_embeddings_cache = None
+        self.devpost_embeddings_cache = None
+        self.devpost_cache = None
+        self.news_cache = None
+
+    @staticmethod
+    def textblob_sentiment(text):
+        """Return TextBlob polarity, subjectivity, and sentiment label."""
+        if not isinstance(text, str) or not text.strip():
+            return 0.0, 0.0, "neutral"
+
+        blob = TextBlob(text)
+        polarity = blob.sentiment.polarity
+        subjectivity = blob.sentiment.subjectivity
+
+        if polarity > 0.05:
+            label = "positive"
+        elif polarity < -0.05:
+            label = "negative"
+        else:
+            label = "neutral"
+
+        return polarity, subjectivity, label
+
+    @staticmethod
+    def _json_safe(value):
+        """Convert NumPy/pandas scalars and containers into JSON-safe Python types."""
+        if isinstance(value, dict):
+            return {key: EmbeddingPipeline._json_safe(item) for key, item in value.items()}
+        if isinstance(value, list):
+            return [EmbeddingPipeline._json_safe(item) for item in value]
+        if isinstance(value, tuple):
+            return [EmbeddingPipeline._json_safe(item) for item in value]
+        if isinstance(value, np.generic):
+            return value.item()
+        return value
 
     def load_model(self):
         print("Loading embedding model")
@@ -110,9 +143,6 @@ class EmbeddingPipeline:
         encoded_embeddings = self.encode_embeddings(embeddings)
         df["embedding"] = encoded_embeddings
 
-        # Add sentiment scores
-        df = self.add_sentiment_scores(df)
-
         # Save to database
         if save_embeddings:
             self.save_to_db(df, table_name)
@@ -155,36 +185,55 @@ class EmbeddingPipeline:
 
     def load_embeddings_to_memory(self):
         """Load all embeddings from DB into memory for fast search"""
-        if self.embeddings_cache is not None:
+        if self.news_embeddings_cache is not None:
             return  # Already loaded
 
         print("\n⚡ Loading embeddings into memory...")
         conn = sqlite3.connect(self.db_path)
 
-        query = """
+        devpost_query = """
             SELECT title, body_text, embedding,
-                   dominant_topic, secondary_label
+                   dominant_topic, secondary_label,
+                   tb_polarity, tb_subjectivity, tb_sentiment
             FROM DevPosts
             WHERE embedding IS NOT NULL
         """
-
-        self.articles_cache = pd.read_sql_query(query, conn)
+        news_query = """
+            SELECT title, text, embedding,
+                   dominant_topic, secondary_label,
+                   tb_polarity, tb_subjectivity, tb_sentiment
+            FROM modified_articles
+            WHERE embedding IS NOT NULL
+        """
+        self.devpost_cache = pd.read_sql_query(devpost_query, conn)
+        self.news_cache = pd.read_sql_query(news_query, conn)
         conn.close()
 
-        print(f"Decoding {len(self.articles_cache):,} embeddings...")
-        embeddings = []
-        for emb_b64 in tqdm(self.articles_cache["embedding"]):
+        print(f"Decoding {len(self.devpost_cache):,} embeddings...")
+        devpost_embeddings = []
+        for emb_b64 in tqdm(self.devpost_cache["embedding"]):
             try:
-                embeddings.append(self.decode_embedding(emb_b64))
+                devpost_embeddings.append(self.decode_embedding(emb_b64))
             except Exception as e:
                 print(f"Failed to decode: {e}")
-                embeddings.append(np.zeros(384))
+                devpost_embeddings.append(np.zeros(384))
 
-        self.embeddings_cache = np.array(embeddings)
+        self.devpost_embeddings_cache = np.array(devpost_embeddings)
+
+
+        news_embeddings = []
+        for emb_b64 in tqdm(self.news_cache["embedding"]):
+            try:
+                news_embeddings.append(self.decode_embedding(emb_b64))
+            except Exception as e:
+                print(f"Failed to decode: {e}")
+                news_embeddings.append(np.zeros(384))
+
+        self.news_embeddings_cache = np.array(news_embeddings)
         print(f"✅ Ready for similarity search")
 
     def find_similar(
-        self, query_text, top_k=3, sentiment_threshold=0.2, show_scores=False
+        self, query_text, top_k=3, show_scores=False
     ):
         """
         Find similar articles based on semantic similarity and sentiment.
@@ -192,13 +241,12 @@ class EmbeddingPipeline:
         Args:
             query_text: The article text to find matches for
             top_k: Number of results to return
-            sentiment_threshold: Filter results within this sentiment range
             show_scores: Include detailed scores in results
 
         Returns:
             List of similar articles with metadata
         """
-        if self.embeddings_cache is None:
+        if self.news_embeddings_cache is None or self.devpost_embeddings_cache is None:
             self.load_embeddings_to_memory()
 
         # Embed query
@@ -206,49 +254,85 @@ class EmbeddingPipeline:
         query_embedding = self.model.encode(query_text, convert_to_numpy=True)
 
         # Compute semantic similarity
-        similarities = cosine_similarity(
-            [query_embedding], self.embeddings_cache
+        news_similarities = cosine_similarity(
+            [query_embedding], self.news_embeddings_cache
+        )[0]
+
+        devpost_similarities = cosine_similarity(
+            [query_embedding], self.devpost_embeddings_cache
         )[0]
 
         # Normalize to 0-1
-        similarities = (similarities + 1) / 2
+        devpost_similarities = (devpost_similarities + 1) / 2
+        news_similarities = (news_similarities + 1) / 2
 
-        # Get sentiment of query
-        query_sentiment = self.sentiment_analyzer.polarity_scores(query_text[
-            :1000
-        ])["compound"]
+        # Get sentiment of query using TextBlob polarity.
+        query_polarity, query_subjectivity, query_label = self.textblob_sentiment(query_text[:1000])
 
 
         # Get top-k
-        top_indices = np.argsort(similarities)[::-1][:top_k]
+        top_news_indices = np.argsort(news_similarities)[::-1][:top_k]
+        top_devpost_indices = np.argsort(devpost_similarities)[::-1][:top_k]
 
-        results = []
-        for idx in top_indices:
-            if similarities[idx] == 0 and sentiment_threshold > 0:
+        news_res = []
+        for idx in top_news_indices:
+            if news_similarities[idx] == 0:
                 continue  # Skip filtered articles
 
-            row = self.articles_cache.iloc[idx]
+            row = self.news_cache.iloc[idx]
             result = {
-                "id": row["id"],
                 "title": row["title"],
-                "similarity_score": float(similarities[idx]),
-                "primary_label": row.get("primary_label", ""),
-                "secondary_label": row.get("secondary_label", "")
+                "similarity_score": float(news_similarities[idx]),
+                "dominant_topic": self._json_safe(row.get("dominant_topic", "")),
+                "secondary_label": row.get("secondary_label", ""),
+                "tb_polarity": float(row.get("tb_polarity", 0.0)),
+                "tb_subjectivity": float(row.get("tb_subjectivity", 0.0)),
+                "tb_sentiment": self._json_safe(row.get("tb_sentiment", 0.0))
 
             }
 
             if show_scores:
-                result["query_sentiment"] = float(query_sentiment)
+                result["query_polarity"] = float(query_polarity)
+                result["query_subjectivity"] = float(query_subjectivity)
+                result["query_sentiment_label"] = query_label
 
-            results.append(result)
+            news_res.append(result)
 
-        return results
+        devpost_res = []
+        for idx in top_devpost_indices:
+            if devpost_similarities[idx] == 0:
+                continue  # Skip filtered articles
+
+            row = self.devpost_cache.iloc[idx]
+            result = {
+                "title": row["title"],
+                "similarity_score": float(devpost_similarities[idx]),
+                "dominant_topic": self._json_safe(row.get("dominant_topic", "")),
+                "secondary_label": row.get("secondary_label", ""),
+                "tb_polarity": float(row.get("tb_polarity", 0.0)),
+                "tb_subjectivity": float(row.get("tb_subjectivity", 0.0)),
+                "tb_sentiment": self._json_safe(row.get("tb_sentiment", 0.0))
+            }
+
+            if show_scores:
+                result["query_polarity"] = float(query_polarity)
+                result["query_subjectivity"] = float(query_subjectivity)
+                result["query_sentiment_label"] = query_label
+
+            devpost_res.append(result)
+
+        query_sentiment = {
+            "tb_polarity": float(query_polarity),
+            "tb_subjectivity": float(query_subjectivity),
+            "tb_sentiment": query_label
+        }
+        return self._json_safe({"news": news_res, "devpost": devpost_res, "query_sentiment": query_sentiment})
 
 
 # Main execution
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate and save embeddings for DB tables")
-    parser.add_argument("--db-path", default="db.sqlite", help="Path to sqlite database")
+    parser.add_argument("--db-path", default="../../db.sqlite", help="Path to sqlite database")
     parser.add_argument(
         "--tables",
         nargs="+",
