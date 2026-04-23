@@ -43,17 +43,17 @@ async function generate_chart(chart_name, params) {
 }
 
 async function generate_sen_by_len_chart() {
-    let sentiment_threshold = $("#sentiment_threshold").val()
-    let news_length_threshold = $("#news_length_threshold").val()
-    let devposts_length_threshold = $("#devposts_length_threshold").val()
+    let included_topics = []
 
-    let params = {
-        "sentiment_threshold": sentiment_threshold,
-        "news_length_threshold": news_length_threshold,
-        "devposts_length_threshold": devposts_length_threshold
+    for (let i = 0; i <= 6; i++) {
+        included_topics.push($("#topic_" + i).is(":checked"))
     }
 
-    await generate_chart("sen_by_len", params)
+    let params = {
+        "included_topics": included_topics
+    }
+
+    await generate_chart("sec_news_topic_disc", params)
 }
 
 async function generate_sen_by_topic_chart() {
@@ -81,11 +81,13 @@ async function generate_topic_disc_over_time_chart() {
 async function generate_sen_over_time_chart() {
     let post_per_month_threshold = $("#post_per_month_threshold").val()
     let sentiment_threshold = $("#sentiment_threshold").val()
+    let table_choice = $("#table-choice").val()
 
 
     let params = {
         "sentiment_threshold": sentiment_threshold,
-        "post_per_month_threshold": post_per_month_threshold
+        "post_per_month_threshold": post_per_month_threshold,
+        "table_choice": table_choice,
     }
 
     await generate_chart("sen_over_time", params)

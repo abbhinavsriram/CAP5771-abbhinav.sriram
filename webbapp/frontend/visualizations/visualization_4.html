@@ -57,18 +57,25 @@
           </div>
         </nav>
         <div class="row">
+            <h2>Normalized Sentiment Change Over Time</h2>
             <div class="col-lg-4">
                 <div class="form">
-                    <label class="form-label" id="output_sentiment_threshold" for="sentiment_threshold">Sentiment Threshold: 0</label>
-                    <input class="form-range" type="range" id="sentiment_threshold" name="sentiment_threshold" min="-1" max="1" step="0.1" oninput="update_slider_output('sentiment_threshold', 'Sentiment Threshold: ')"/>
+                    <label for="table-choice">Choose A Table:</label>
+                    <select id="table-choice" class="form-control" name="table-choice" onchange="generate_sen_over_time_chart()">
+                      <option value="both">News Articles & Developer Posts</option>
+                      <option value="modified_articles">News Articles</option>
+                      <option value="devposts">Developer Posts</option>
+                    </select>
+
+                    <label class="form-label mt-2 " id="output_sentiment_threshold" for="sentiment_threshold">Sentiment Threshold: 0</label>
+                    <input class="form-range" type="range" id="sentiment_threshold" name="sentiment_threshold" min="-1" max="1" step="0.1" oninput="update_slider_output('sentiment_threshold', 'Sentiment Threshold: ')" onchange="generate_sen_over_time_chart()"/>
 
                     <label class="form-label" id="output_post_per_month_threshold" for="post_per_month_threshold">Post Per Month: 5</label>
-                    <input class="form-range" type="range" id="post_per_month_threshold" name="post_per_month_threshold" min="0" max="100" step="5" value="5" oninput="update_slider_output('post_per_month_threshold', 'Post Per Month Threshold: ')"/>
-
-                    <button class="btn btn-primary" id="run_model" onclick="generate_sen_over_time_chart()">Generate Graph</button>
+                    <input class="form-range" type="range" id="post_per_month_threshold" name="post_per_month_threshold" min="0" max="100" step="5" value="5" oninput="update_slider_output('post_per_month_threshold', 'Post Per Month Threshold: ')" onchange="generate_sen_over_time_chart()"/>
                 </div>
                 <div id="param_explainer" class="mt-5">
                     <ul class="list-group bg-dark text-light">
+                        <li class="list-group-item bg-dark text-light">Table Choice: What tables to pull data from to chart sentiment change over time</li>
                         <li class="list-group-item bg-dark text-light">Sentiment Threshold: The <i>`zero point`</i> for classifying posts based on sentiment score, i.e. score above the threshold are positive, and below are negative</li>
                         <li class="list-group-item bg-dark text-light">Post Per Month: The minimum number of posts a user must have made in a month to be considered</li>
                     </ul>

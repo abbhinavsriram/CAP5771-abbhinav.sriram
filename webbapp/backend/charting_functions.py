@@ -114,7 +114,7 @@ def generate_sen_by_topic(data, filename="sen_by_topic.png"):
 
 
 # Topic Discussion Amount over Time
-def get_topic_disc_over_time(post_per_month_threshold, table_name, date_column):
+def get_topic_disc_over_time(plot, post_per_month_threshold, table_name, date_column):
     query = f"""SELECT strftime('%Y-%m', {date_column}) month_released,
     SUM(CASE WHEN dominant_topic = 0 THEN 1 ELSE 0 END) * 100.0 / count(*) topic_0,
     SUM(CASE WHEN dominant_topic = 1 THEN 1 ELSE 0 END) * 100.0 / count(*) topic_1,
@@ -122,7 +122,6 @@ def get_topic_disc_over_time(post_per_month_threshold, table_name, date_column):
     SUM(CASE WHEN dominant_topic = 3 THEN 1 ELSE 0 END) * 100.0 / count(*) topic_3,
     SUM(CASE WHEN dominant_topic = 4 THEN 1 ELSE 0 END) * 100.0 / count(*) topic_4
                     FROM {table_name}
-                    where {date_column} < "2025-12-01"
                     GROUP BY month_released
                     HAVING COUNT(*) > {post_per_month_threshold}
                     ORDER BY month_released;"""
@@ -135,26 +134,36 @@ def get_topic_disc_over_time(post_per_month_threshold, table_name, date_column):
 
     formal_table_name = "News Articles" if table_name == "modified_articles" else "Developer Posts"
     for i in range(5):
-        plt.plot(df["month_released"], df[f"topic_{i}"], label=f"{formal_table_name} Topic {i + 1}")
+        plot.plot(df["month_released"], df[f"topic_{i}"], label=f"{formal_table_name} Topic {i + 1}")
+    plot.legend()
 
 
 def generate_topic_disc_over_time(data, filename="topic_disc_over_time.png"):
     plt.figure(figsize=(10, 5))
     post_per_month_threshold = int(data["params"].get("post_per_month_threshold", 5))
-    get_topic_disc_over_time(post_per_month_threshold, "devposts", "published_at")
-    get_topic_disc_over_time(post_per_month_threshold, "modified_articles", "date")
-    plt.xlabel("Month")
-    plt.ylabel("Topic")
-    plt.title("Topic Change over Months")
-    plt.xticks(rotation=90)
-    plt.legend()
 
-    save_plot(filename)
+    fig, axes = plt.subplots(2, 1, figsize=(8, 6))
+    get_topic_disc_over_time(axes[0], post_per_month_threshold, "devposts", "published_at")
+    get_topic_disc_over_time(axes[1], post_per_month_threshold, "modified_articles", "date")
+
+    for ax in axes:
+        ax.set_xlabel("")
+        ax.set_ylabel("")
+    fig.supylabel("Topic")
+    fig.suptitle("Normalized Topic Change over Months")
+    fig.supxlabel("Month")
+
+    # plt.xticks(rotation=90)
+    # plt.legend()
+
+    save_plot(filename, fig)
 
 
 # Get sentiment over month
 def get_sentiment_change_over_months(table_name, column, sentiment_threshold=0, post_per_month_threshold=5):
     query = f"""SELECT strftime('%Y-%m', {column}) month_released,
+    SUM(IF(roberta_pos_score - roberta_neg_score > {sentiment_threshold}, 1, 0)) * 100 / count(*) positive,
+    SUM(IF(roberta_pos_score - roberta_neg_score < -{sentiment_threshold}, 1, 0)) * 100 / count(*) negative
     SUM(CASE WHEN roberta_pos_score - roberta_neg_score >= {sentiment_threshold} THEN 1 ELSE 0 END) * 100.0 / count(*) positive,
     SUM(CASE WHEN roberta_pos_score - roberta_neg_score <= -{sentiment_threshold} THEN 1 ELSE 0 END) * 100.0 / count(*) negative
                 FROM {table_name}
@@ -172,21 +181,83 @@ def get_sentiment_change_over_months(table_name, column, sentiment_threshold=0, 
 def generate_sent_change_over_time(data, filename="sen_over_time.png"):
     sentiment_threshold = data["params"].get("sentiment_threshold", 0)
     post_per_month_threshold = data["params"].get("post_per_month_threshold", 5)
-    articles_df = get_sentiment_change_over_months("modified_articles", "date", sentiment_threshold=sentiment_threshold, post_per_month_threshold=post_per_month_threshold)
-    dp_df = get_sentiment_change_over_months("DevPosts", "published_at", sentiment_threshold=sentiment_threshold, post_per_month_threshold=post_per_month_threshold)
+    table_choice = data["params"].get("table_choice", "both")
 
-    plt.plot(articles_df["month_released"], articles_df["negative"], label="Negative News Articles")
-    plt.plot(articles_df["month_released"], articles_df["positive"], label="Positive News Articles")
+    if table_choice == "both" or table_choice == "modified_articles":
+        articles_df = get_sentiment_change_over_months("modified_articles", "date", sentiment_threshold=sentiment_threshold, post_per_month_threshold=post_per_month_threshold)
+        plt.plot(articles_df["month_released"], articles_df["negative"], label="Negative News Articles")
+        plt.plot(articles_df["month_released"], articles_df["positive"], label="Positive News Articles")
 
-    plt.plot(dp_df["month_released"], dp_df["negative"], label="Negative DevPosts")
-    plt.plot(dp_df["month_released"], dp_df["positive"], label="Positive DevPosts")
+    if table_choice == "both" or table_choice == "devposts":
+        dp_df = get_sentiment_change_over_months("DevPosts", "published_at", sentiment_threshold=sentiment_threshold, post_per_month_threshold=post_per_month_threshold)
+        plt.plot(dp_df["month_released"], dp_df["negative"], label="Negative Dev Posts")
+        plt.plot(dp_df["month_released"], dp_df["positive"], label="Positive Dev Posts")
+
     plt.xlabel("Year")
     plt.ylabel("Sentiment %")
     plt.title("Sentiment Change over Year")
+    plt.xticks(rotation=90)
     plt.legend()
     save_plot(filename)
 
 
+# Topic Discussion Amount over Time
+def get_secondary_topic_disc_over_time(included_topics):
+    topics = ["%discussion of AI in geopolitics, international competition, or national security%",
+              "%discussion of AI safety, alignment, or existential risks%",
+              "%discussion of AI's impact on jobs, employment, or the economy%",
+              "%discussion of ethical concerns, bias, or fairness in AI systems%",
+              "%discussion of how AI is portrayed in media or public opinion%",
+              "%discussion of legal, regulatory, or policy issues related to AI%",
+              "%discussion of the environmental impact or energy consumption of AI%"]
+    topic_label = ["AI in geopolitics, international competition, or national security",
+                   "AI safety, alignment, or existential risks",
+                   "AI's impact on jobs, employment, or the economy",
+                   "Ethical concerns, bias, or fairness in AI systems",
+                   "How AI is portrayed in media or public opinion",
+                   "Legal, regulatory, or policy issues related to AI",
+                   "The environmental impact or energy consumption of AI"]
+    colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
+    query = f"""SELECT strftime('%Y-%m', date) month_released,
+    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_0,
+    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_1,
+    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_2,
+    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_3,
+    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_4,
+    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_5,
+    SUM(IF(secondary_label like ?, 1, 0)) * 100.0 / count(*) topic_6
+                    FROM modified_articles
+                    GROUP BY month_released
+                    HAVING COUNT(*) > 50
+                    ORDER BY month_released;"""
+
+    conn = connect(DB_FILE)
+    df = read_sql(query, conn, params=topics)
+    conn.close()
+
+    df["month_released"] = df["month_released"].apply(lambda x: datetime.strptime(x, "%Y-%m"))
+
+    for i in range(len(topics)):
+        if included_topics[i]:
+            plt.plot(df["month_released"], df[f"topic_{i}"], colors[i], label=topic_label[i])
+
+
+def generate_secondary_topic_disc_over_time(data, filename="sec_news_topic_disc.png"):
+    included_topics = data["params"].get("included_topics", [True, True, True, True, True, True, True])
+
+    plt.figure(figsize=(10, 9))
+
+    get_secondary_topic_disc_over_time(included_topics)
+
+    plt.legend()
+    plt.ylabel("Topic")
+    plt.title("Normalized Topic Change In News Articles over Time")
+    plt.xlabel("Month")
+
+    # plt.xticks(rotation=90)
+    # plt.legend()
+
+    save_plot(filename)
 
 if __name__ == "__main__":
     generate_sent_change_over_time({"params": {}}, filename="default_sen_over_time.png")

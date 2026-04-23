@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 
-from charting_functions import generate_sen_by_len_chart, generate_sen_by_topic, generate_topic_disc_over_time, generate_sent_change_over_time
 from similarity_search import EmbeddingPipeline
+from charting_functions import generate_secondary_topic_disc_over_time, generate_sen_by_topic, generate_topic_disc_over_time, generate_sent_change_over_time
 
 app = Flask(__name__)
 # CORS(app, resources={r"/*": {"origins": "https://unaccusing-georgeanna-triboelectric.ngrok-free.dev",}}, supports_credentials=True)
@@ -22,7 +22,7 @@ except Exception as e:
 
 chart_dict = {
     "sen_by_topic": generate_sen_by_topic,
-    "sen_by_len": generate_sen_by_len_chart,
+    "sec_news_topic_disc": generate_secondary_topic_disc_over_time,
     "sen_over_time": generate_sent_change_over_time,
     "topic_disc_over_time": generate_topic_disc_over_time,
 }
@@ -60,12 +60,12 @@ def generate_chart():
 
         if function_to_call is None:
             return jsonify({'error': 'Invalid chart'}), 400
-        filepath = function_to_call(data)
+        function_to_call(data)
         print("Sending response")
         return jsonify({
-            'filepath': filepath,
+            'success': True,
             'input': data
-        })
+        }), 200
 
     except Exception as e:
         return jsonify({
