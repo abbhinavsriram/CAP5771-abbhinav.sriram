@@ -136,6 +136,7 @@ function create_result_card(result, rank, resultType) {
     const sentimentText = get_sentiment_text(sentimentValue);
     const polarity = typeof result.tb_polarity === "number" ? result.tb_polarity : 0;
     const subjectivity = typeof result.tb_subjectivity === "number" ? result.tb_subjectivity : 0;
+    const articleText = result.article_text ? escape_html(String(result.article_text)).replace(/\n/g, "<br>") : "No article text available.";
 
     let labelsHtml = "";
     if (result.dominant_topic !== undefined && result.dominant_topic !== null && result.dominant_topic !== "") {
@@ -166,6 +167,10 @@ function create_result_card(result, rank, resultType) {
                         <span><strong>${sectionLabel} Sentiment:</strong> ${(sentimentValue * 100).toFixed(1)}%</span>
                         <span><strong>Subjectivity:</strong> ${(subjectivity * 100).toFixed(1)}%</span>
                     </div>
+                    <details class="result-dropdown">
+                        <summary>View Article Text</summary>
+                        <div class="result-text">${articleText}</div>
+                    </details>
                 </div>
             </div>
         </div>
