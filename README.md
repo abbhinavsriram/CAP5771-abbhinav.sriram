@@ -2,6 +2,8 @@
 
 ## Investigating contrasting perspectives between developers and mainstream media on AI implementation concerns
 
+**Live app available at: data.aellyalwardi.com**
+
 
 ### Installation requirements
 
@@ -26,9 +28,6 @@ We initially wrote the DEV API extraction and exploration code in two separate J
   * get_hashnode_articles.ipynb: Code to extract developer posts from Hashnode
   * dev_data_exploration.ipynb is the code used to do basic data exploration of DEV.TO articles (post times, key words used, word count)
   * hashnode_data_exploration.ipynb is the same as above but for hashnode data extraction
-* py files (for assignment specification)
-  * get_dev_posts.py
-  * dev_data_exploration.py
 
 
 **News Articles code files:** 
@@ -39,40 +38,75 @@ We initially wrote the DEV API extraction and exploration code in two separate J
 
 ### Clustering and sentiment analysis notebooks
 **clustering**
+
+```
 * /dev_notebooks
   * clustering.ipynb: Main clustering and classification pipeline for developer articles
   * news_clustering.ipynb: Same as above but for news articles
-**Sentiment Analysis**
-* /dev_notebooks
-  * sentiment_analysis.ipynb: Sentiment Analysis for developer articles
-  * news_sentiment_analysis: Same as above but for news
 
+```
+**Sentiment Analysis**
+
+```
+* /dev_notebooks
+  * dev_sentiment.ipynb: Sentiment Analysis for developer articles
+  * news_sentiment_analysis: Same as above but for news
+```
 (The other files are kept to show our full process, but they are mainly experimental)
 
 
-### Web app 
+### Web app
+
+```
 * /webbapp
   * /backend
     * backend.py: Flask app
     * charting_functions.py: Backend for visualizations 1-4
     * similarity_search.py: Backend for similarity search functionality
   * /frontend
-    * similarity_search.js: JavaScript logic that receives python output and turns into frontend element
     * visualization_1-5.html: HTML frontend
+  * similarity_search.js: JavaScript logic that receives python output and turns into frontend element
+  * app.js: Same function as above but for visualizations 1-4
+  * index.html: Home screen
+```
 
 
-### Running Files
+### Running our Pipeline files
+
+
 All the data has already been acquired and is in the repo. Since running the data acquisition code takes multiple days, we advise you to run `combine_sqlite_dbs`, which will automatically generate the `db.sqlite` file
 
-To run our developer posts data acquisition file, run
+To run our developer and news posts data, run the following files (processing time > 3 days due to rate limits)
 ```
-python get_dev_posts.py
+dev_notebooks/
+  get_hashnode_articles.ipynb
+  get_dev_posts.ipynb
+
+get_news_articles.py
+
 ```
-in the root directory
+Then, to run our data clustering notebooks, run
+
+```
+dev_notebooks/
+  clustering.ipynb
+  news_clustering.ipynb
+```
+To run our data sentiment analysis notebooks, run
+
+```
+dev_notebooks/
+  dev_sentiment.ipynb
+  news_sentiment_analysis.ipynb
+```
+
+### Running the Flask applications
+
+Run 
+```
+python webbapp/backend/backend.py
+```
+in the root directory to start the flask application.
 
 
-To run our news articles data acquisition file, run
-```
-python get_news_articles.py
-```
-in the root directory
+Alternatively, you can navigate to data.aellyalwardi.com to use the tool live
