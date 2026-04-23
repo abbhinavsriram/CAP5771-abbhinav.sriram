@@ -5,7 +5,6 @@ from similarity_search import EmbeddingPipeline
 from charting_functions import generate_secondary_topic_disc_over_time, generate_sen_by_topic, generate_topic_disc_over_time, generate_sent_change_over_time
 
 app = Flask(__name__)
-# CORS(app, resources={r"/*": {"origins": "https://unaccusing-georgeanna-triboelectric.ngrok-free.dev",}}, supports_credentials=True)
 CORS(app, resources={r"/*": {"origins": "http://localhost:5001",}}, supports_credentials=True)
 
 # Initialize embedding pipeline on startup
@@ -125,4 +124,8 @@ def find_similar():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
+    generate_sent_change_over_time({"params": {}}, filename="default_sen_over_time.png")
+    generate_sen_by_topic({"params": {}}, filename="default_sentiment_by_topic.png")
+    generate_topic_disc_over_time({"params": {}}, filename="default_topic_disc_over_time.png")
+    generate_secondary_topic_disc_over_time({"params": {}}, filename="default_secondary_topic_disc_over_time.png")
     app.run(host='0.0.0.0', port=5001, debug=True)

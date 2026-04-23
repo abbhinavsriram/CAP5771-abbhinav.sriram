@@ -1,16 +1,40 @@
 from pandas import read_sql
 import matplotlib.pyplot as plt
 from matplotlib import use as plt_use
-import seaborn as sns
 from sqlite3 import connect
 from datetime import datetime
 
 DB_FILE = "../../db.sqlite"
-NEWS_TOPIC_LIST = ["jobs, work, leaders", "data, learning, machine", "generative, chatgpt, content", "tech, industry, world", "google, openai, company"]
-DP_TOPIC_LIST = ["code, software, development", "models, model, google", "just, like, work", "learning, machine, artificial", "enterprise, 2025, artificial"]
+NEWS_TOPIC_LIST = [
+    "jobs, workers, employees",
+    "data, security, cybersecurity",
+    "generative, language, models",
+    "tech, industry, world",
+    "google, openai, microsoft",
+    "business, companies, services",
+    "people, think, human",
+    "government, president, china"
+]
+
+
+DP_TOPIC_LIST = [
+    "code, engineering, development",
+    "openai, models, google",
+    "tools, time, work",
+    "ml, algorithms, artificial",
+    "enterprise, companies, business",
+    "customer, automation, chatbots",
+    "financial, healthcare, predictive",
+    "agentic, autonomous, workflows"
+]
+
+
+
 TABLE_TOPIC_LIST = {
     "modified_articles": NEWS_TOPIC_LIST,
-    "devposts": DP_TOPIC_LIST}
+    "devposts": DP_TOPIC_LIST
+}
+
 plt_use("agg")
 
 def save_plot(filename, fig=None):
@@ -24,57 +48,6 @@ def save_plot(filename, fig=None):
         plt.close()
 
     return f"/images/{filename}"
-
-
-# Sentiment Distribution Over Length
-
-def get_sentiment_dist_over_length(table_name, column, date_column, sentiment_threshold=0.0, length_threshold=500000):
-    query = f"""SELECT {column},
-                CASE
-                    WHEN roberta_pos_score - roberta_neg_score > {sentiment_threshold} THEN 'positive'
-                    ELSE 'negative'
-                END sentiment,
-                strftime('%Y-%m', {date_column}) month_released
-                FROM {table_name}
-                WHERE strftime('%Y-%m', {date_column}) BETWEEN "2021-01" AND "2025-12"
-                ORDER BY month_released, strftime('%m', {date_column});"""
-    conn = connect(DB_FILE)
-
-    df = read_sql(query, conn)
-    conn.close()
-    df["length"] = df[column].apply(len)
-    df = df[df["length"] < length_threshold]
-    return df
-
-
-def generate_sen_by_len_chart(data, filename="sen_by_len.png"):
-    sentiment_threshold = float(data["params"].get("sentiment_threshold", 0))
-    news_length_threshold = int(data["params"].get("news_length_threshold", 55000))
-    devposts_length_threshold = int(data["params"].get("devposts_length_threshold", 55000))
-
-
-    articles_df = get_sentiment_dist_over_length("modified_articles", "text", date_column="date",
-                                                 sentiment_threshold=sentiment_threshold,
-                                                 length_threshold=news_length_threshold)
-    dp_df = get_sentiment_dist_over_length("DevPosts", "body_text", date_column="published_at",
-                                           sentiment_threshold=sentiment_threshold,
-                                           length_threshold=devposts_length_threshold)
-
-
-    fig, axes = plt.subplots(1, 2, figsize=(9, 5))
-    sns.boxplot(x="sentiment", y='length', data=articles_df, ax=axes[0])
-
-    sns.boxplot(x="sentiment", y='length', data=dp_df, ax=axes[1])
-    for ax in axes:
-        ax.set_xlabel("")
-        ax.set_ylabel("")
-    axes[0].set_title("News Articles Sentiment Distribution by Length")
-    axes[1].set_title("DevPosts Sentiment Distribution by Length")
-    fig.supylabel("Length (chars)")
-    fig.supxlabel("Sentiment")
-
-    save_plot(filename, fig)
-
 
 # Sentiment Distribution over Topic
 
@@ -120,7 +93,10 @@ def get_topic_disc_over_time(plot, post_per_month_threshold, table_name, date_co
     SUM(CASE WHEN dominant_topic = 1 THEN 1 ELSE 0 END) * 100.0 / count(*) topic_1,
     SUM(CASE WHEN dominant_topic = 2 THEN 1 ELSE 0 END) * 100.0 / count(*) topic_2,
     SUM(CASE WHEN dominant_topic = 3 THEN 1 ELSE 0 END) * 100.0 / count(*) topic_3,
-    SUM(CASE WHEN dominant_topic = 4 THEN 1 ELSE 0 END) * 100.0 / count(*) topic_4
+    SUM(CASE WHEN dominant_topic = 4 THEN 1 ELSE 0 END) * 100.0 / count(*) topic_4,
+    SUM(CASE WHEN dominant_topic = 5 THEN 1 ELSE 0 END) * 100.0 / count(*) topic_5,
+    SUM(CASE WHEN dominant_topic = 6 THEN 1 ELSE 0 END) * 100.0 / count(*) topic_6,
+    SUM(CASE WHEN dominant_topic = 7 THEN 1 ELSE 0 END) * 100.0 / count(*) topic_7
                     FROM {table_name}
                     GROUP BY month_released
                     HAVING COUNT(*) > {post_per_month_threshold}
@@ -133,23 +109,23 @@ def get_topic_disc_over_time(plot, post_per_month_threshold, table_name, date_co
     df["month_released"] = df["month_released"].apply(lambda x: datetime.strptime(x, "%Y-%m"))
 
     formal_table_name = "News Articles" if table_name == "modified_articles" else "Developer Posts"
-    for i in range(5):
-        plot.plot(df["month_released"], df[f"topic_{i}"], label=f"{formal_table_name} Topic {i + 1}")
-    plot.legend()
+    plot.set_title(formal_table_name)
+    for i in range(len(DP_TOPIC_LIST)):
+        plot.plot(df["month_released"], df[f"topic_{i}"], label=f"Topic {i + 1}")
+    plot.legend(loc="upper left", bbox_to_anchor=(1, 0.85), ncol=1, fontsize=10)
 
 
 def generate_topic_disc_over_time(data, filename="topic_disc_over_time.png"):
-    plt.figure(figsize=(10, 5))
     post_per_month_threshold = int(data["params"].get("post_per_month_threshold", 5))
 
-    fig, axes = plt.subplots(2, 1, figsize=(8, 6))
+    fig, axes = plt.subplots(2, 1, figsize=(9, 8))
     get_topic_disc_over_time(axes[0], post_per_month_threshold, "devposts", "published_at")
     get_topic_disc_over_time(axes[1], post_per_month_threshold, "modified_articles", "date")
 
     for ax in axes:
         ax.set_xlabel("")
         ax.set_ylabel("")
-    fig.supylabel("Topic")
+    fig.supylabel("% Topic Coverage")
     fig.suptitle("Normalized Topic Change over Months")
     fig.supxlabel("Month")
 
@@ -160,14 +136,12 @@ def generate_topic_disc_over_time(data, filename="topic_disc_over_time.png"):
 
 
 # Get sentiment over month
-def get_sentiment_change_over_months(table_name, column, sentiment_threshold=0, post_per_month_threshold=5):
-    query = f"""SELECT strftime('%Y-%m', {column}) month_released,
-    SUM(IF(roberta_pos_score - roberta_neg_score > {sentiment_threshold}, 1, 0)) * 100 / count(*) positive,
-    SUM(IF(roberta_pos_score - roberta_neg_score < -{sentiment_threshold}, 1, 0)) * 100 / count(*) negative
+def get_sentiment_change_over_months(table_name, column, sentiment_threshold=0.0, post_per_month_threshold=5):
+    query = f"""SELECT strftime('%Y-%m', {column}) AS month_released,
     SUM(CASE WHEN roberta_pos_score - roberta_neg_score >= {sentiment_threshold} THEN 1 ELSE 0 END) * 100.0 / count(*) positive,
-    SUM(CASE WHEN roberta_pos_score - roberta_neg_score <= -{sentiment_threshold} THEN 1 ELSE 0 END) * 100.0 / count(*) negative
+    SUM(CASE WHEN roberta_pos_score - roberta_neg_score <= -1 * {sentiment_threshold} THEN 1 ELSE 0 END) * 100.0 / count(*) negative
                 FROM {table_name}
-                WHERE strftime('%Y-%m', {column}) BETWEEN "2021-01" AND "2025-12"
+                WHERE month_released BETWEEN "2021-01" AND "2025-12"
                 GROUP BY month_released
                 HAVING COUNT(*) > {post_per_month_threshold}
                 ORDER BY month_released;"""
@@ -258,9 +232,3 @@ def generate_secondary_topic_disc_over_time(data, filename="sec_news_topic_disc.
     # plt.legend()
 
     save_plot(filename)
-
-if __name__ == "__main__":
-    generate_sent_change_over_time({"params": {}}, filename="default_sen_over_time.png")
-    generate_sen_by_topic({"params": {}}, filename="default_sentiment_by_topic.png")
-    generate_sen_by_len_chart({"params": {}}, filename="default_sentiment_dist_over_length.png")
-    generate_topic_disc_over_time({"params": {}}, filename="default_topic_disc_over_time.png")
