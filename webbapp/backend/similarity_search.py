@@ -21,6 +21,28 @@ class EmbeddingPipeline:
         self.devpost_cache = None
         self.news_cache = None
 
+        self.NEWS_TOPIC_LIST = [
+            "jobs, workers, employees",
+            "data, security, cybersecurity",
+            "generative, language, models",
+            "tech, industry, world",
+            "google, openai, microsoft",
+            "business, companies, services",
+            "people, think, human",
+            "government, president, china"
+        ]
+
+        self.DP_TOPIC_LIST = [
+            "code, engineering, development",
+            "openai, models, google",
+            "tools, time, work",
+            "ml, algorithms, artificial",
+            "enterprise, companies, business",
+            "customer, automation, chatbots",
+            "financial, healthcare, predictive",
+            "agentic, autonomous, workflows"
+        ]
+
     @staticmethod
     def textblob_sentiment(text):
         """Return TextBlob polarity, subjectivity, and sentiment label."""
@@ -280,11 +302,19 @@ class EmbeddingPipeline:
                 continue  # Skip filtered articles
 
             row = self.news_cache.iloc[idx]
+
+            dominant_topic: str = row.get("dominant_topic", "")
+            try:
+                dominant_topic = self.NEWS_TOPIC_LIST[int(dominant_topic)]
+            except:
+                pass
+
+
             result = {
                 "title": row["title"],
                 "article_text": self._json_safe(row.get("text", "")),
                 "similarity_score": float(news_similarities[idx]),
-                "dominant_topic": self._json_safe(row.get("dominant_topic", "")),
+                "dominant_topic": self._json_safe(dominant_topic),
                 "secondary_label": row.get("secondary_label", ""),
                 "tb_polarity": float(row.get("tb_polarity", 0.0)),
                 "tb_subjectivity": float(row.get("tb_subjectivity", 0.0)),
@@ -305,11 +335,18 @@ class EmbeddingPipeline:
                 continue  # Skip filtered articles
 
             row = self.devpost_cache.iloc[idx]
+
+            dominant_topic: str = row.get("dominant_topic", "")
+            try:
+                dominant_topic = self.DP_TOPIC_LIST[int(dominant_topic)]
+            except:
+                pass
+
             result = {
                 "title": row["title"],
                 "article_text": self._json_safe(row.get("body_text", "")),
                 "similarity_score": float(devpost_similarities[idx]),
-                "dominant_topic": self._json_safe(row.get("dominant_topic", "")),
+                "dominant_topic": self._json_safe(dominant_topic),
                 "secondary_label": row.get("secondary_label", ""),
                 "tb_polarity": float(row.get("tb_polarity", 0.0)),
                 "tb_subjectivity": float(row.get("tb_subjectivity", 0.0)),
