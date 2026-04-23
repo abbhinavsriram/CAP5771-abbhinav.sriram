@@ -139,7 +139,7 @@ function create_result_card(result, rank, resultType) {
 
     let labelsHtml = "";
     if (result.dominant_topic !== undefined && result.dominant_topic !== null && result.dominant_topic !== "") {
-        labelsHtml += `<span class="label-badge label-primary">Topic ${escape_html(String(result.dominant_topic))}</span>`;
+        labelsHtml += `<span class="label-badge label-primary">Topic: ${escape_html(String(result.dominant_topic))}</span>`;
     }
     if (result.secondary_label) {
         labelsHtml += `<span class="label-badge label-secondary">${escape_html(String(result.secondary_label))}</span>`;
