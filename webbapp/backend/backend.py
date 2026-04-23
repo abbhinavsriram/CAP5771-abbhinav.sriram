@@ -135,4 +135,4 @@ if __name__ == '__main__':
     generate_sen_by_topic({"params": {}}, filename="default_sentiment_by_topic.png")
     generate_topic_disc_over_time({"params": {}}, filename="default_topic_disc_over_time.png")
     generate_secondary_topic_disc_over_time({"params": {}}, filename="default_secondary_topic_disc_over_time.png")
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=False)

@@ -138,8 +138,8 @@ def generate_topic_disc_over_time(data, filename="topic_disc_over_time.png"):
 # Get sentiment over month
 def get_sentiment_change_over_months(table_name, column, sentiment_threshold=0.0, post_per_month_threshold=5):
     query = f"""SELECT strftime('%Y-%m', {column}) AS month_released,
-    SUM(CASE WHEN roberta_pos_score - roberta_neg_score >= {sentiment_threshold} THEN 1 ELSE 0 END) * 100.0 / count(*) positive,
-    SUM(CASE WHEN roberta_pos_score - roberta_neg_score <= -1 * {sentiment_threshold} THEN 1 ELSE 0 END) * 100.0 / count(*) negative
+    SUM(IIF(roberta_pos_score - roberta_neg_score > {sentiment_threshold}, 1, 0)) * 100.0 / count(*) positive,
+    SUM(IIF(roberta_pos_score - roberta_neg_score < -1 * {sentiment_threshold}, 1, 0)) * 100.0 / count(*) negative
                 FROM {table_name}
                 WHERE month_released BETWEEN "2021-01" AND "2025-12"
                 GROUP BY month_released
@@ -159,13 +159,13 @@ def generate_sent_change_over_time(data, filename="sen_over_time.png"):
 
     if table_choice == "both" or table_choice == "modified_articles":
         articles_df = get_sentiment_change_over_months("modified_articles", "date", sentiment_threshold=sentiment_threshold, post_per_month_threshold=post_per_month_threshold)
-        plt.plot(articles_df["month_released"], articles_df["negative"], label="Negative News Articles")
-        plt.plot(articles_df["month_released"], articles_df["positive"], label="Positive News Articles")
+        plt.plot(articles_df["month_released"], articles_df["positive"], linestyle=(0, (5, 5)), color="b", label="Positive News Articles")
+        plt.plot(articles_df["month_released"], articles_df["negative"], linestyle=(0, (5, 5)), color="tab:orange", label="Negative News Articles")
 
     if table_choice == "both" or table_choice == "devposts":
         dp_df = get_sentiment_change_over_months("DevPosts", "published_at", sentiment_threshold=sentiment_threshold, post_per_month_threshold=post_per_month_threshold)
-        plt.plot(dp_df["month_released"], dp_df["negative"], label="Negative Dev Posts")
-        plt.plot(dp_df["month_released"], dp_df["positive"], label="Positive Dev Posts")
+        plt.plot(dp_df["month_released"], dp_df["positive"], "r", linestyle=(0, (1, 1)), label="Positive Dev Posts")
+        plt.plot(dp_df["month_released"], dp_df["negative"], "g", linestyle=(0, (1, 1)), label="Negative Dev Posts")
 
     plt.xlabel("Year")
     plt.ylabel("Sentiment %")
