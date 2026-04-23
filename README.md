@@ -49,7 +49,7 @@ We initially wrote the DEV API extraction and exploration code in two separate J
 
 ```
 * /dev_notebooks
-  * sentiment_analysis.ipynb: Sentiment Analysis for developer articles
+  * dev_sentiment.ipynb: Sentiment Analysis for developer articles
   * news_sentiment_analysis: Same as above but for news
 ```
 (The other files are kept to show our full process, but they are mainly experimental)
