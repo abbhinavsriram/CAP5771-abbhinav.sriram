@@ -1,0 +1,8 @@
+What is the main story or message your visualizations or article communicate?
+Our visualizations are meant to show how the news media and developers view and discuss AI differently. We do this by showing
+differences in sentiment towards AI, showing a pie chart breaking down the sentiment distribution of the news articles and dev posts.
+We also are interested in how the news media and developers view and discuss AI differently, which is shown through various
+graphs, one being the coverage of subtopics on AI over time. There are a few obvious take aways that the user shuold be able to see, like:
+- News coverage of AI is about 10% points more positive than posts from the developer community
+- News coverage of AI in terms of ethics has declined over the years, while the legal side of AI has grown in terms of coverage
+- In both Developer and News coverage, sentiment towards AI is decreaesing over time
