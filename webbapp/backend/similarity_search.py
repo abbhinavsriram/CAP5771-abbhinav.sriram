@@ -282,6 +282,7 @@ class EmbeddingPipeline:
             row = self.news_cache.iloc[idx]
             result = {
                 "title": row["title"],
+                "article_text": self._json_safe(row.get("text", "")),
                 "similarity_score": float(news_similarities[idx]),
                 "dominant_topic": self._json_safe(row.get("dominant_topic", "")),
                 "secondary_label": row.get("secondary_label", ""),
@@ -306,6 +307,7 @@ class EmbeddingPipeline:
             row = self.devpost_cache.iloc[idx]
             result = {
                 "title": row["title"],
+                "article_text": self._json_safe(row.get("body_text", "")),
                 "similarity_score": float(devpost_similarities[idx]),
                 "dominant_topic": self._json_safe(row.get("dominant_topic", "")),
                 "secondary_label": row.get("secondary_label", ""),

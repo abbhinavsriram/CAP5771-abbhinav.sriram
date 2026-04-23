@@ -134,6 +134,7 @@ function create_result_card(result, rank, resultType) {
     const sentimentValue = typeof result.tb_polarity === "number" ? result.tb_polarity : 0;
     const sentimentClass = get_sentiment_class(sentimentValue);
     const sentimentText = get_sentiment_text(sentimentValue);
+    const polarity = typeof result.tb_polarity === "number" ? result.tb_polarity : 0;
     const subjectivity = typeof result.tb_subjectivity === "number" ? result.tb_subjectivity : 0;
 
     let labelsHtml = "";
@@ -141,7 +142,7 @@ function create_result_card(result, rank, resultType) {
         labelsHtml += `<span class="label-badge label-primary">Topic ${escape_html(String(result.dominant_topic))}</span>`;
     }
     if (result.secondary_label) {
-        labelsHtml += `<span class="label-badge label-secondary">${result.secondary_label}</span>`;
+        labelsHtml += `<span class="label-badge label-secondary">${escape_html(String(result.secondary_label))}</span>`;
     }
 
     const scoreLabel = resultType === "news" ? "News Match" : "Developer Match";
@@ -161,9 +162,9 @@ function create_result_card(result, rank, resultType) {
                         <span class="sentiment-badge ${sentimentClass}">${sentimentText}</span>
                     </div>
                     <div class="result-meta">
+                        <span><strong>Polarity:</strong> ${(polarity * 100).toFixed(1)}%</span>
                         <span><strong>${sectionLabel} Sentiment:</strong> ${(sentimentValue * 100).toFixed(1)}%</span>
                         <span><strong>Subjectivity:</strong> ${(subjectivity * 100).toFixed(1)}%</span>
-                        <span><strong>ID:</strong> ${result.id}</span>
                     </div>
                 </div>
             </div>
@@ -185,11 +186,11 @@ function get_sentiment_class(sentiment) {
 
 function get_sentiment_text(sentiment) {
     if (sentiment >= 0.05) {
-        return "😊 Positive";
+        return "Positive";
     } else if (sentiment <= -0.05) {
-        return "😞 Negative";
+        return "Negative";
     } else {
-        return "😐 Neutral";
+        return "Neutral";
     }
 }
 
@@ -201,18 +202,18 @@ function escape_html(text) {
         '"': '&quot;',
         "'": '&#039;'
     };
-    return text.replace(/[&<>"']/g, m => map[m]);
+    return String(text).replace(/[&<>"']/g, m => map[m]);
 }
 
 function show_loading() {
     $("#loading").show();
-    $("#search-text").text("🔄 Searching...");
+    $("#search-text").text("Searching...");
     $(".btn-search").prop("disabled", true);
 }
 
 function hide_loading() {
     $("#loading").hide();
-    $("#search-text").text("🔎 Find Similar Articles");
+    $("#search-text").text("Find Similar Articles");
     $(".btn-search").prop("disabled", false);
 }
 
