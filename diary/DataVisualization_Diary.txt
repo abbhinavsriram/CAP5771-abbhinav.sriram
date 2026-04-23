@@ -6,3 +6,4 @@ graphs, one being the coverage of subtopics on AI over time. There are a few obv
 - News coverage of AI is about 10% points more positive than posts from the developer community
 - News coverage of AI in terms of ethics has declined over the years, while the legal side of AI has grown in terms of coverage
 - In both Developer and News coverage, sentiment towards AI is decreaesing over time
+But the user is also able to mess around with the graphs to see dig deeper into the data and draw their own conclusions
